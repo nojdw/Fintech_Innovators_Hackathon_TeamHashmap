@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>IB Portfolio</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', monospace; background: #1e1e1e; color: #d4d4d4; padding: 2rem; }
+    h1 { color: #4ec9b0; margin-bottom: 1rem; font-size: 1.6rem; }
+    h2 { color: #9cdcfe; margin: 1.5rem 0 0.5rem; font-size: 1.1rem; }
+
+    .badges { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    .badge {
+      background: #2d2d2d; border: 1px solid #3e3e3e;
+      padding: 4px 12px; border-radius: 20px; font-size: 0.8rem;
+    }
+    .badge.green { border-color: #4ec9b0; color: #4ec9b0; }
+    .badge.red   { border-color: #f48771; color: #f48771; }
+    .badge.gray  { border-color: #888; color: #888; }
+
+    .account-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .account-card {
+      background: #252526; border: 1px solid #3e3e3e;
+      border-radius: 8px; padding: 1rem;
+    }
+    .account-card .label { font-size: 0.75rem; color: #888; margin-bottom: 4px; }
+    .account-card .value { font-size: 1.2rem; font-weight: bold; color: #d4d4d4; }
+
+    table { width: 100%; border-collapse: collapse; background: #252526; border-radius: 8px; overflow: hidden; }
+    th { background: #2d2d2d; color: #9cdcfe; padding: 10px 12px; text-align: left; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    td { padding: 10px 12px; border-bottom: 1px solid #2d2d2d; font-size: 0.9rem; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #2a2a2a; }
+
+    .pos { color: #4ec9b0; }
+    .neg { color: #f48771; }
+    .error { color: #f48771; margin-top: 1rem; }
+
+    .last-updated { font-size: 0.75rem; color: #555; margin-top: 1.5rem; }
+  </style>
+</head>
+<body>
+  <h1>📊 IB Portfolio Viewer</h1>
+
+  <div class="badges" id="badges">
+    <span class="badge gray">Connecting...</span>
+  </div>
+
+  <h2>Account Summary</h2>
+  <div class="account-grid" id="account">
+    <div class="account-card"><div class="label">Status</div><div class="value">Loading...</div></div>
+  </div>
+
+  <h2>Positions</h2>
+  <div id="portfolio">Loading...</div>
+
+  <p class="last-updated" id="last-updated"></p>
+
+  <script>
+    function fmt(val, prefix = '$') {
+      const n = parseFloat(val);
+      if (isNaN(n)) return '—';
+      return prefix + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function pnlClass(val) {
+      return parseFloat(val) >= 0 ? 'pos' : 'neg';
+    }
+
+    async function load() {
+      try {
+        const [statusRes, accountRes, portfolioRes] = await Promise.all([
+          fetch('/api/status'),
+          fetch('/api/account'),
+          fetch('/api/portfolio'),
+        ]);
+
+        const status    = await statusRes.json();
+        const account   = await accountRes.json();
+        const portfolio = await portfolioRes.json();
+
+        // --- Badges ---
+        document.getElementById('badges').innerHTML = `
+          <span class="badge ${status.connected ? 'green' : 'red'}">
+            ${status.connected ? '🟢 Connected' : '🔴 Disconnected'}
+          </span>
+          <span class="badge green">🔒 Read-Only</span>
+          <span class="badge gray">Port 4001</span>`;
+
+        // --- Account Cards ---
+        const cards = [
+          { label: 'Net Liquidation',   key: 'NetLiquidation' },
+          { label: 'Total Cash',        key: 'TotalCashValue' },
+          { label: 'Gross Position Value', key: 'GrossPositionValue' },
+          { label: 'Unrealized P&L',    key: 'UnrealizedPnL', pnl: true },
+          { label: 'Realized P&L',      key: 'RealizedPnL',   pnl: true },
+        ];
+        document.getElementById('account').innerHTML = cards.map(c => {
+          const val = account[c.key];
+          const cls = c.pnl ? pnlClass(val) : '';
+          return `<div class="account-card">
+            <div class="label">${c.label}</div>
+            <div class="value ${cls}">${fmt(val)}</div>
+          </div>`;
+        }).join('');
+
+        // --- Positions Table ---
+        const positions = portfolio.positions;
+        if (!positions || positions.length === 0) {
+          document.getElementById('portfolio').innerHTML =
+            '<p style="color:#888; margin-top:0.5rem;">No open positions found.</p>';
+        } else {
+          const rows = positions.map(p => `
+            <tr>
+              <td><strong>${p.symbol}</strong></td>
+              <td>${p.sec_type}</td>
+              <td>${p.currency}</td>
+              <td>${p.position}</td>
+              <td>${fmt(p.market_price)}</td>
+              <td>${fmt(p.market_value)}</td>
+              <td>${fmt(p.avg_cost)}</td>
+              <td class="${pnlClass(p.unrealized_pnl)}">${fmt(p.unrealized_pnl)}</td>
+              <td class="${pnlClass(p.realized_pnl)}">${fmt(p.realized_pnl)}</td>
+            </tr>`).join('');
+
+          document.getElementById('portfolio').innerHTML = `
+            <table>
+              <thead><tr>
+                <th>Symbol</th><th>Type</th><th>Currency</th><th>Position</th>
+                <th>Price</th><th>Market Value</th><th>Avg Cost</th>
+                <th>Unrealized P&L</th><th>Realized P&L</th>
+              </tr></thead>
+              <tbody>${rows}</tbody>
+            </table>`;
+        }
+
+        document.getElementById('last-updated').textContent =
+          `Last updated: ${new Date().toLocaleTimeString()}`;
+
+      } catch (err) {
+        document.getElementById('badges').innerHTML =
+          `<span class="badge red">🔴 Error</span>`;
+        document.getElementById('account').innerHTML =
+          `<p class="error">❌ ${err.message}</p>`;
+        console.error(err);
+      }
+    }
+
+    load();
+    setInterval(load, 30000); // refresh every 30s
+  </script>
+</body>
+</html>
