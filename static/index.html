@@ -11,7 +11,7 @@
       --bg:#0d0f14;--surface:#13161d;--surface2:#1a1e28;--border:#232736;
       --accent:#00e5a0;--accent2:#3d8bff;--accent3:#ff6b6b;--accent4:#ffd166;
       --text:#e2e8f0;--muted:#5a6380;
-      --font-mono:'DM Mono',monospace;--font-sans:'DM Sans',sans-serif;   
+      --font-mono:'DM Mono',monospace;--font-sans:'DM Sans',sans-serif;
     }
     *{box-sizing:border-box;margin:0;padding:0;}
     body{background:var(--bg);color:var(--text);font-family:var(--font-sans);min-height:100vh;font-size:14px;}
@@ -19,11 +19,19 @@
     .header-left{display:flex;align-items:center;gap:1rem;}
     .logo{font-family:var(--font-mono);font-size:1.1rem;color:var(--accent);letter-spacing:-0.02em;}
     .logo span{color:var(--muted);}
-    .header-badges{display:flex;gap:0.5rem;}
+    .header-badges{display:flex;gap:0.5rem;align-items:center;}
     .badge{font-family:var(--font-mono);font-size:0.7rem;padding:3px 10px;border-radius:20px;border:1px solid var(--border);color:var(--muted);}
     .badge.live{border-color:var(--accent);color:var(--accent);}
+    .badge.yf{border-color:var(--accent4);color:var(--accent4);}
     .badge.readonly{border-color:var(--accent2);color:var(--accent2);}
+    .header-right{display:flex;align-items:center;gap:1rem;}
     .last-updated{font-family:var(--font-mono);font-size:0.7rem;color:var(--muted);}
+    .btn-refresh{font-family:var(--font-mono);font-size:0.7rem;padding:4px 12px;border-radius:4px;border:1px solid var(--accent);color:var(--accent);background:transparent;cursor:pointer;transition:background 0.2s;}
+    .btn-refresh:hover{background:var(--accent);color:var(--bg);}
+    .btn-refresh:disabled{opacity:0.4;cursor:not-allowed;}
+    .loading-bar{height:2px;background:var(--surface2);position:relative;overflow:hidden;}
+    .loading-bar.active::after{content:'';position:absolute;left:-40%;width:40%;height:100%;background:var(--accent);animation:loading 1s ease-in-out infinite;}
+    @keyframes loading{0%{left:-40%}100%{left:100%}}
     .networth-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;gap:2.5rem;align-items:center;overflow-x:auto;}
     .nw-item{flex-shrink:0;}
     .nw-label{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;}
@@ -78,6 +86,9 @@
     .range-dot{position:absolute;top:-3px;width:10px;height:10px;border-radius:50%;background:var(--accent2);transform:translateX(-50%);}
     .section-header{font-family:var(--font-mono);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin:1.5rem 0 0.75rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border);}
     .section-header:first-child{margin-top:0;}
+    .cache-note{font-family:var(--font-mono);font-size:0.7rem;color:var(--muted);padding:0.4rem 0.75rem;background:var(--surface2);border-radius:4px;display:inline-block;margin-bottom:1rem;}
+    .skeleton{background:linear-gradient(90deg,var(--surface2) 25%,var(--surface) 50%,var(--surface2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;height:1.2rem;}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
     ::-webkit-scrollbar{width:4px;height:4px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
   </style>
 </head>
@@ -87,14 +98,18 @@
     <div class="logo">fin<span>/</span>dashboard</div>
     <div class="header-badges">
       <span class="badge live">● LIVE</span>
+      <span class="badge yf">⚡ yfinance</span>
       <span class="badge readonly">🔒 READ-ONLY</span>
-      <span class="badge">📂 CSV</span>
     </div>
   </div>
-  <div class="last-updated" id="last-updated">—</div>
+  <div class="header-right">
+    <span class="last-updated" id="last-updated">—</span>
+    <button class="btn-refresh" id="btn-refresh" onclick="forceRefresh()">↺ Refresh</button>
+  </div>
 </div>
+<div class="loading-bar" id="loading-bar"></div>
 <div class="networth-bar" id="networth-bar">
-  <div class="nw-item"><div class="nw-label">Loading</div><div class="nw-value">—</div></div>
+  <div class="nw-item"><div class="nw-label">Loading</div><div class="nw-value skeleton" style="width:120px">&nbsp;</div></div>
 </div>
 <div class="nav">
   <div class="nav-tab active" onclick="switchTab('banking')">Banking</div>
@@ -103,7 +118,7 @@
 </div>
 <div class="content">
   <div class="tab-panel active" id="tab-banking">
-    <div class="grid-2" id="bank-grid"><div class="card"><div class="card-title">Loading banks...</div></div></div>
+    <div class="grid-2" id="bank-grid"><div class="card"><div class="skeleton" style="height:200px"></div></div><div class="card"><div class="skeleton" style="height:200px"></div></div></div>
     <div class="section-header">Income vs Expenses — Last 3 Months</div>
     <div class="grid-2">
       <div class="card"><div class="card-title">Monthly Cash Flow</div><div class="chart-wrap"><canvas id="chart-cashflow"></canvas></div></div>
@@ -113,14 +128,14 @@
   <div class="tab-panel" id="tab-portfolio">
     <div class="section-header">Brokerage Summary</div>
     <div class="grid-4" id="portfolio-stats"></div>
-    <div class="section-header">Positions</div>
-    <div class="card"><div class="table-wrap"><table id="positions-table">
-      <thead><tr><th>Symbol</th><th>Type</th><th>Shares</th><th>Price</th><th>Market Value</th><th>Avg Cost</th><th>Unrealized P&L</th><th>Div Yield</th><th>P/E</th><th>Beta</th><th>52W Range</th></tr></thead>
+    <div class="section-header">Positions <span id="data-source-note"></span></div>
+    <div class="card"><div class="table-wrap"><table>
+      <thead><tr><th>Symbol</th><th>Type</th><th>Shares</th><th>Live Price</th><th>Market Value</th><th>Avg Cost</th><th>Unrealized P&amp;L</th><th>Sector</th><th>Div Yield</th><th>P/E</th><th>Beta</th><th>52W Range</th></tr></thead>
       <tbody id="positions-body"></tbody>
     </table></div></div>
     <div class="section-header">Transaction History</div>
     <div class="card"><div class="table-wrap"><table>
-      <thead><tr><th>Date</th><th>Symbol</th><th>Action</th><th>Qty</th><th>Price</th><th>Value</th><th>Commission</th><th>Realized P&L</th></tr></thead>
+      <thead><tr><th>Date</th><th>Symbol</th><th>Action</th><th>Qty</th><th>Price</th><th>Value</th><th>Commission</th><th>Realized P&amp;L</th></tr></thead>
       <tbody id="tx-body"></tbody>
     </table></div></div>
   </div>
@@ -151,6 +166,13 @@ const COLORS=['#00e5a0','#3d8bff','#ffd166','#ff6b6b','#c084fc','#fb923c','#34d3
 function fmt(v,pre='$'){const n=parseFloat(v);if(isNaN(n))return'—';return pre+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmtPct(v){return parseFloat(v).toFixed(2)+'%';}
 function pnlClass(v){return parseFloat(v)>=0?'pos':'neg';}
+function setLoading(on){
+  const bar=document.getElementById('loading-bar');
+  const btn=document.getElementById('btn-refresh');
+  bar.classList.toggle('active',on);
+  btn.disabled=on;
+  btn.textContent=on?'Loading...':'↺ Refresh';
+}
 function makeChart(id,type,data,options={}){
   if(CHARTS[id])CHARTS[id].destroy();
   const ctx=document.getElementById(id)?.getContext('2d');
@@ -167,11 +189,29 @@ function switchTab(name){
   document.getElementById(`tab-${name}`).classList.add('active');
   setTimeout(()=>Object.values(CHARTS).forEach(c=>c?.update()),50);
 }
+async function forceRefresh(){
+  await fetch('/api/refresh');
+  await load();
+}
 async function load(){
+  setLoading(true);
   try{
-    const [aR,pR,tR,cR,mR]=await Promise.all([fetch('/api/account'),fetch('/api/portfolio'),fetch('/api/transactions'),fetch('/api/bank/chase'),fetch('/api/bank/marcus')]);
-    const account=await aR.json(),portfolio=await pR.json(),txData=await tR.json(),chase=await cR.json(),marcus=await mR.json();
+    const [sR,aR,pR,tR,cR,mR]=await Promise.all([
+      fetch('/api/status'),fetch('/api/account'),fetch('/api/portfolio'),
+      fetch('/api/transactions'),fetch('/api/bank/chase'),fetch('/api/bank/marcus')
+    ]);
+    const status=await sR.json(),account=await aR.json(),portfolio=await pR.json();
+    const txData=await tR.json(),chase=await cR.json(),marcus=await mR.json();
     const positions=portfolio.positions,txs=txData.transactions;
+
+    // Show cache age
+    const cacheAge=status.cached?.portfolio;
+    const sourceNote=cacheAge!=null
+      ?`<span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--muted);font-weight:normal;margin-left:0.5rem">(yfinance · cached ${cacheAge}s ago)</span>`
+      :'<span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--accent4);font-weight:normal;margin-left:0.5rem">(yfinance · live)</span>';
+    const el=document.getElementById('data-source-note');
+    if(el)el.innerHTML=sourceNote;
+
     renderNetWorth(account,chase,marcus);
     renderBanking(chase,marcus);
     renderPortfolio(positions,txs,account);
@@ -179,7 +219,9 @@ async function load(){
     document.getElementById('last-updated').textContent='Updated '+new Date().toLocaleTimeString();
   }catch(err){
     console.error(err);
-    document.getElementById('last-updated').textContent='Error: '+err.message;
+    document.getElementById('last-updated').textContent='⚠ '+err.message;
+  }finally{
+    setLoading(false);
   }
 }
 function renderNetWorth(account,chase,marcus){
@@ -188,7 +230,7 @@ function renderNetWorth(account,chase,marcus){
   document.getElementById('networth-bar').innerHTML=`
     <div class="nw-item"><div class="nw-label">Total Net Worth</div><div class="nw-value accent">${fmt(totalNet)}</div></div>
     <div class="nw-divider"></div>
-    <div class="nw-item"><div class="nw-label">Brokerage</div><div class="nw-value accent2">${fmt(brokerage)}</div></div>
+    <div class="nw-item"><div class="nw-label">Brokerage (Live)</div><div class="nw-value accent2">${fmt(brokerage)}</div></div>
     <div class="nw-item"><div class="nw-label">Chase Checking</div><div class="nw-value">${fmt(chasebal)}</div></div>
     <div class="nw-item"><div class="nw-label">Marcus Savings</div><div class="nw-value">${fmt(marcusbal)}</div></div>
     <div class="nw-divider"></div>
@@ -227,7 +269,7 @@ function renderBanking(chase,marcus){
   }
   document.getElementById('bank-grid').innerHTML=bankCard(chase)+bankCard(marcus);
   const months=['Mar','Apr','May'];
-  const inc=[12390,9700,8500],exp=[8173.38,8347.36,4985.59];
+  const inc=[12390,9700,8500],exp=[8173,8347,4986];
   makeChart('chart-cashflow','bar',{labels:months,datasets:[
     {label:'Income',data:inc,backgroundColor:'#00e5a033',borderColor:'#00e5a0',borderWidth:2},
     {label:'Expenses',data:exp,backgroundColor:'#ff6b6b33',borderColor:'#ff6b6b',borderWidth:2}
@@ -244,16 +286,41 @@ function renderPortfolio(positions,txs,account){
   const totalCost=positions.reduce((s,p)=>s+(p.avg_cost*p.position),0);
   const totalReturn=totalCost>0?((totalValue-totalCost)/totalCost*100):0;
   document.getElementById('portfolio-stats').innerHTML=[
-    {label:'Portfolio Value',value:fmt(totalValue),sub:`${positions.length} positions`},
+    {label:'Portfolio Value',value:fmt(totalValue),sub:`${positions.length} positions · live prices`,cls:''},
     {label:'Total Return',value:fmtPct(totalReturn),sub:`Cost basis ${fmt(totalCost)}`,cls:pnlClass(totalReturn)},
-    {label:'Unrealized P&L',value:fmt(totalUnreal),sub:'Open positions',cls:pnlClass(totalUnreal)},
+    {label:'Unrealized P&L',value:fmt(totalUnreal),sub:'vs avg cost',cls:pnlClass(totalUnreal)},
     {label:'Realized P&L',value:fmt(totalReal),sub:'Closed trades',cls:pnlClass(totalReal)},
-  ].map(s=>`<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value ${s.cls||''}">${s.value}</div><div class="stat-sub">${s.sub}</div></div>`).join('');
+  ].map(s=>`<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value ${s.cls}">${s.value}</div><div class="stat-sub">${s.sub}</div></div>`).join('');
   document.getElementById('positions-body').innerHTML=positions.map(p=>{
     const pct52=p.week_52_high>p.week_52_low?((p.market_price-p.week_52_low)/(p.week_52_high-p.week_52_low)*100).toFixed(0):50;
-    return`<tr><td class="symbol-cell">${p.symbol}</td><td><span style="font-size:0.7rem;color:var(--muted)">${p.asset_class}</span></td><td style="font-family:var(--font-mono)">${p.position}</td><td style="font-family:var(--font-mono)">${fmt(p.market_price)}</td><td style="font-family:var(--font-mono)">${fmt(p.market_value)}</td><td style="font-family:var(--font-mono)">${fmt(p.avg_cost)}</td><td style="font-family:var(--font-mono)" class="${pnlClass(p.unrealized_pnl)}">${fmt(p.unrealized_pnl)}</td><td style="font-family:var(--font-mono)">${p.dividend_yield>0?fmtPct(p.dividend_yield):'—'}</td><td style="font-family:var(--font-mono)">${p.pe_ratio>0?p.pe_ratio.toFixed(1)+'x':'—'}</td><td style="font-family:var(--font-mono)" class="${p.beta>1.2?'neg':p.beta<0.8?'pos':''}">${p.beta>0?p.beta.toFixed(2):'—'}</td><td style="min-width:100px"><div style="font-size:0.65rem;color:var(--muted);display:flex;justify-content:space-between"><span>${fmt(p.week_52_low)}</span><span>${fmt(p.week_52_high)}</span></div><div class="range-bar"><div class="range-dot" style="left:${pct52}%"></div></div></td></tr>`;
+    return`<tr>
+      <td class="symbol-cell">${p.symbol}</td>
+      <td><span style="font-size:0.7rem;color:var(--muted)">${p.asset_class}</span></td>
+      <td style="font-family:var(--font-mono)">${p.position}</td>
+      <td style="font-family:var(--font-mono)">${fmt(p.market_price)}</td>
+      <td style="font-family:var(--font-mono)">${fmt(p.market_value)}</td>
+      <td style="font-family:var(--font-mono)">${fmt(p.avg_cost)}</td>
+      <td style="font-family:var(--font-mono)" class="${pnlClass(p.unrealized_pnl)}">${fmt(p.unrealized_pnl)}</td>
+      <td style="font-size:0.8rem;color:var(--muted)">${p.sector}</td>
+      <td style="font-family:var(--font-mono)">${p.dividend_yield>0?fmtPct(p.dividend_yield):'—'}</td>
+      <td style="font-family:var(--font-mono)">${p.pe_ratio>0?p.pe_ratio.toFixed(1)+'x':'—'}</td>
+      <td style="font-family:var(--font-mono)" class="${p.beta>1.2?'neg':p.beta<0.8?'pos':''}">${p.beta>0?p.beta.toFixed(2):'—'}</td>
+      <td style="min-width:100px">
+        <div style="font-size:0.65rem;color:var(--muted);display:flex;justify-content:space-between"><span>${fmt(p.week_52_low)}</span><span>${fmt(p.week_52_high)}</span></div>
+        <div class="range-bar"><div class="range-dot" style="left:${pct52}%"></div></div>
+      </td>
+    </tr>`;
   }).join('');
-  document.getElementById('tx-body').innerHTML=txs.map(t=>`<tr><td style="font-family:var(--font-mono);font-size:0.8rem">${t.date}</td><td class="symbol-cell">${t.symbol}</td><td class="${t.action==='BUY'?'buy':'sell'}">${t.action}</td><td style="font-family:var(--font-mono)">${t.quantity}</td><td style="font-family:var(--font-mono)">${fmt(t.price)}</td><td style="font-family:var(--font-mono)">${fmt(t.value)}</td><td style="font-family:var(--font-mono)">${fmt(t.commission)}</td><td style="font-family:var(--font-mono)" class="${pnlClass(t.realized_pnl)}">${t.realized_pnl>0?fmt(t.realized_pnl):'—'}</td></tr>`).join('');
+  document.getElementById('tx-body').innerHTML=txs.map(t=>`<tr>
+    <td style="font-family:var(--font-mono);font-size:0.8rem">${t.date}</td>
+    <td class="symbol-cell">${t.symbol}</td>
+    <td class="${t.action==='BUY'?'buy':'sell'}">${t.action}</td>
+    <td style="font-family:var(--font-mono)">${t.quantity}</td>
+    <td style="font-family:var(--font-mono)">${fmt(t.price)}</td>
+    <td style="font-family:var(--font-mono)">${fmt(t.value)}</td>
+    <td style="font-family:var(--font-mono)">${fmt(t.commission)}</td>
+    <td style="font-family:var(--font-mono)" class="${pnlClass(t.realized_pnl)}">${t.realized_pnl>0?fmt(t.realized_pnl):'—'}</td>
+  </tr>`).join('');
 }
 function renderAnalysis(positions){
   const totalValue=positions.reduce((s,p)=>s+p.market_value,0);
@@ -267,12 +334,12 @@ function renderAnalysis(positions){
   const spy=positions.find(p=>p.symbol==='SPY'),qqq=positions.find(p=>p.symbol==='QQQ');
   const cost=positions.reduce((s,p)=>s+(p.avg_cost*p.position),0),val=positions.reduce((s,p)=>s+p.market_value,0);
   const portRet=((val-cost)/cost*100).toFixed(2);
-  const spyRet=spy?(((spy.market_price-spy.avg_cost)/spy.avg_cost)*100).toFixed(2):0;
-  const qqqRet=qqq?(((qqq.market_price-qqq.avg_cost)/qqq.avg_cost)*100).toFixed(2):0;
+  const spyRet=spy?(((spy.market_price-spy.avg_cost)/spy.avg_cost)*100).toFixed(2):'N/A';
+  const qqqRet=qqq?(((qqq.market_price-qqq.avg_cost)/qqq.avg_cost)*100).toFixed(2):'N/A';
   document.getElementById('benchmark-grid').innerHTML=[
     {label:'Your Portfolio',value:portRet+'%',cls:pnlClass(portRet)},
-    {label:'SPY (S&P 500)',value:spyRet+'%',cls:pnlClass(spyRet)},
-    {label:'QQQ (Nasdaq)',value:qqqRet+'%',cls:pnlClass(qqqRet)},
+    {label:'SPY (S&P 500)',value:spyRet+(spyRet!=='N/A'?'%':''),cls:pnlClass(spyRet)},
+    {label:'QQQ (Nasdaq)',value:qqqRet+(qqqRet!=='N/A'?'%':''),cls:pnlClass(qqqRet)},
     {label:'Fed Funds Rate',value:'5.25%',cls:''},
     {label:'Marcus HYSA APY',value:'5.10%',cls:''},
     {label:'10Y Treasury',value:'4.42%',cls:''},
@@ -283,28 +350,28 @@ function renderAnalysis(positions){
     return`<div class="progress-row"><div class="progress-label">${k}</div><div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:${COLORS[i%COLORS.length]}"></div></div><div class="progress-val">${pct}%</div></div>`;
   }).join('');
   const equities=positions.filter(p=>p.pe_ratio>0);
-  const avgPE=equities.reduce((s,p)=>s+p.pe_ratio,0)/equities.length;
+  const avgPE=equities.length?equities.reduce((s,p)=>s+p.pe_ratio,0)/equities.length:0;
   const betas=positions.filter(p=>p.beta>0);
-  const avgBeta=betas.reduce((s,p)=>s+p.beta,0)/betas.length;
+  const avgBeta=betas.length?betas.reduce((s,p)=>s+p.beta,0)/betas.length:0;
   const divPos=positions.filter(p=>p.dividend_yield>0);
-  const wDiv=divPos.reduce((s,p)=>s+p.dividend_yield*p.market_value,0)/totalValue;
+  const wDiv=divPos.length?divPos.reduce((s,p)=>s+p.dividend_yield*p.market_value,0)/totalValue:0;
   const annDiv=positions.reduce((s,p)=>s+(p.market_value*p.dividend_yield/100),0);
   const sortedByVal=[...positions].sort((a,b)=>b.market_value-a.market_value);
-  const sortedByBeta=[...positions].sort((a,b)=>b.beta-a.beta);
+  const sortedByBeta=[...positions].filter(p=>p.beta>0).sort((a,b)=>b.beta-a.beta);
   document.getElementById('fundamentals-grid').innerHTML=[
-    {label:'Avg Portfolio P/E',value:avgPE.toFixed(1)+'x',sub:'S&P 500 avg: 24.1x'},
-    {label:'Portfolio Beta',value:avgBeta.toFixed(2),sub:avgBeta>1?'Above market risk':'Below market risk'},
-    {label:'Weighted Div Yield',value:fmtPct(wDiv*100),sub:`~${fmt(annDiv)}/yr estimated`},
+    {label:'Avg Portfolio P/E',value:avgPE>0?avgPE.toFixed(1)+'x':'—',sub:'S&P 500 avg: ~24x'},
+    {label:'Portfolio Beta',value:avgBeta>0?avgBeta.toFixed(2):'—',sub:avgBeta>1?'Above market risk':'Below market risk'},
+    {label:'Weighted Div Yield',value:wDiv>0?fmtPct(wDiv*100):'—',sub:`~${fmt(annDiv)}/yr estimated`},
     {label:'Positions Paying Div',value:`${divPos.length} / ${positions.length}`,sub:'Pay dividends'},
     {label:'Largest Position',value:sortedByVal[0]?.symbol||'—',sub:fmt(sortedByVal[0]?.market_value)},
-    {label:'Most Volatile (Beta)',value:sortedByBeta[0]?.symbol||'—',sub:'β '+sortedByBeta[0]?.beta.toFixed(2)},
+    {label:'Most Volatile (Beta)',value:sortedByBeta[0]?.symbol||'—',sub:sortedByBeta[0]?'β '+sortedByBeta[0].beta.toFixed(2):'—'},
   ].map(s=>`<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value" style="font-size:1.1rem">${s.value}</div><div class="stat-sub">${s.sub}</div></div>`).join('');
   document.getElementById('dividend-bars').innerHTML=divPos.sort((a,b)=>b.dividend_yield-a.dividend_yield).map((p,i)=>`<div class="progress-row"><div class="progress-label" style="font-family:var(--font-mono);color:var(--accent2)">${p.symbol}</div><div class="progress-track"><div class="progress-fill" style="width:${(p.dividend_yield/4*100).toFixed(0)}%;background:${COLORS[i]}"></div></div><div class="progress-val">${fmtPct(p.dividend_yield)}</div></div>`).join('');
-  const rates=[{label:'Fed Funds Rate',rate:5.25,note:'Upper bound'},{label:'Marcus HYSA APY',rate:5.10,note:'Your savings rate'},{label:'10Y Treasury Yield',rate:4.42,note:'Risk-free benchmark'},{label:'2Y Treasury Yield',rate:4.88,note:'Short-term benchmark'},{label:'TLT Div Yield',rate:3.85,note:'Your bond ETF'},{label:'Portfolio Avg Div',rate:+(wDiv*100).toFixed(2),note:'Weighted yield'}];
+  const rates=[{label:'Fed Funds Rate',rate:5.25,note:'Upper bound'},{label:'Marcus HYSA APY',rate:5.10,note:'Your savings rate'},{label:'10Y Treasury',rate:4.42,note:'Risk-free benchmark'},{label:'2Y Treasury',rate:4.88,note:'Short-term'},{label:'TLT Div Yield',rate:3.85,note:'Your bond ETF'},{label:'Portfolio Avg Div',rate:+(wDiv*100).toFixed(2),note:'Weighted yield'}];
   document.getElementById('rate-context').innerHTML=rates.map((r,i)=>`<div class="progress-row"><div class="progress-label">${r.label}</div><div class="progress-track"><div class="progress-fill" style="width:${(r.rate/6*100).toFixed(0)}%;background:${COLORS[i]}"></div></div><div class="progress-val">${r.rate.toFixed(2)}%</div></div><div style="font-size:0.7rem;color:var(--muted);margin:-0.3rem 0 0.5rem 140px">${r.note}</div>`).join('');
 }
 load();
-setInterval(load,60000);
+setInterval(load,300000); // auto-reload every 5 min (matches cache TTL)
 </script>
 </body>
 </html>
