@@ -7,13 +7,32 @@ account,available_balance,48920.55
 account,pending,0.00
 account,interest_rate,5.10
 account,currency,USD
-income,Interest Payment,205.40,2024-05-01,credit
-income,Interest Payment,198.20,2024-04-01,credit
+income,Interest Payment,172.40,2024-01-01,credit
+income,Interest Payment,178.60,2024-02-01,credit
 income,Interest Payment,191.80,2024-03-01,credit
-income,Transfer from Chase,1000.00,2024-05-01,credit
-income,Transfer from Chase,1000.00,2024-04-01,credit
+income,Interest Payment,195.20,2024-04-01,credit
+income,Interest Payment,198.20,2024-05-01,credit
+income,Interest Payment,201.40,2024-06-01,credit
+income,Interest Payment,203.80,2024-07-01,credit
+income,Interest Payment,205.40,2024-08-01,credit
+income,Interest Payment,204.60,2024-09-01,credit
+income,Interest Payment,203.20,2024-10-01,credit
+income,Interest Payment,202.80,2024-11-01,credit
+income,Interest Payment,205.40,2024-12-01,credit
+income,Transfer from Chase,1000.00,2024-01-01,credit
+income,Transfer from Chase,1000.00,2024-02-01,credit
 income,Transfer from Chase,1000.00,2024-03-01,credit
-income,Transfer from Chase,5000.00,2024-01-15,credit
-expense,Transfer to Brokerage,2000.00,2024-03-10,debit
+income,Transfer from Chase,1000.00,2024-04-01,credit
+income,Transfer from Chase,1000.00,2024-05-01,credit
+income,Transfer from Chase,1000.00,2024-06-01,credit
+income,Transfer from Chase,1000.00,2024-07-01,credit
+income,Transfer from Chase,1000.00,2024-08-01,credit
+income,Transfer from Chase,1000.00,2024-09-01,credit
+income,Transfer from Chase,1000.00,2024-10-01,credit
+income,Transfer from Chase,1000.00,2024-11-01,credit
+income,Transfer from Chase,1000.00,2024-12-01,credit
 expense,Transfer to Brokerage,3000.00,2024-02-15,debit
+expense,Transfer to Brokerage,2000.00,2024-03-10,debit
+expense,Transfer to Brokerage,2000.00,2024-06-15,debit
+expense,Transfer to Brokerage,2000.00,2024-09-20,debit
 expense,Emergency Fund Withdrawal,1500.00,2024-01-28,debit

@@ -82,15 +82,16 @@ def get_portfolio() -> list[dict]:
             else:
                 asset_class = "Equity"
 
-            div_yield   = round((info.get("dividendYield") or 0) * 100, 2)
-            pe_ratio    = round(info.get("trailingPE") or 0, 1)
-            beta        = round(info.get("beta") or 0, 2)
-            week52_high = info.get("fiftyTwoWeekHigh") or price
-            week52_low  = info.get("fiftyTwoWeekLow")  or price
+            div_yield    = round((info.get("dividendYield") or 0) * 100, 2)
+            pe_ratio     = round(info.get("trailingPE") or 0, 1)
+            beta         = round(info.get("beta") or 0, 2)
+            week52_high  = info.get("fiftyTwoWeekHigh") or price
+            week52_low   = info.get("fiftyTwoWeekLow")  or price
+            company_name = info.get("longName") or info.get("shortName") or sym
 
         except Exception as e:
             print(f"[yfinance] Warning: could not fetch {sym}: {e}")
-            price = cost
+            price        = cost
             market_value   = round(cost * pos, 2)
             unrealized_pnl = 0.0
             sector         = "Unknown"
@@ -101,9 +102,11 @@ def get_portfolio() -> list[dict]:
             beta           = 0.0
             week52_high    = cost
             week52_low     = cost
+            company_name   = sym
 
         positions.append({
             "symbol":         sym,
+            "company_name":   company_name,
             "sec_type":       "ETF" if asset_class in ("ETF", "Bond", "Commodity") else "STK",
             "asset_class":    asset_class,
             "currency":       "USD",
