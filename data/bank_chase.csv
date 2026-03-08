@@ -1,0 +1,38 @@
+type,key,value
+account,bank_name,Chase
+account,account_type,Checking
+account,account_number,****4821
+account,balance,24583.17
+account,available_balance,23983.17
+account,pending,600.00
+account,interest_rate,0.01
+account,currency,USD
+income,Salary - Acme Corp,8500.00,2024-05-01,credit
+income,Salary - Acme Corp,8500.00,2024-04-01,credit
+income,Salary - Acme Corp,8500.00,2024-03-01,credit
+income,Freelance Payment,1200.00,2024-04-18,credit
+income,Tax Refund,890.00,2024-03-15,credit
+income,Bonus,3000.00,2024-03-31,credit
+expense,Rent,2800.00,2024-05-01,debit
+expense,Rent,2800.00,2024-04-01,debit
+expense,Rent,2800.00,2024-03-01,debit
+expense,Groceries - Whole Foods,320.45,2024-05-03,debit
+expense,Groceries - Whole Foods,289.12,2024-04-06,debit
+expense,Groceries - Whole Foods,310.88,2024-03-05,debit
+expense,Utilities - ConEd,185.20,2024-05-02,debit
+expense,Utilities - ConEd,172.40,2024-04-02,debit
+expense,Utilities - ConEd,198.60,2024-03-02,debit
+expense,Dining,245.80,2024-05-08,debit
+expense,Dining,312.50,2024-04-12,debit
+expense,Dining,198.90,2024-03-18,debit
+expense,Transport - MetroCard,132.00,2024-05-01,debit
+expense,Transport - MetroCard,132.00,2024-04-01,debit
+expense,Subscriptions,87.94,2024-05-05,debit
+expense,Subscriptions,87.94,2024-04-05,debit
+expense,Insurance,420.00,2024-05-01,debit
+expense,Insurance,420.00,2024-04-01,debit
+expense,Shopping,534.20,2024-05-10,debit
+expense,Shopping,621.40,2024-04-14,debit
+expense,Healthcare,180.00,2024-04-20,debit
+expense,Transfer to Marcus,1000.00,2024-05-01,debit
+expense,Transfer to Marcus,1000.00,2024-04-01,debit

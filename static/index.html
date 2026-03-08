@@ -2,215 +2,309 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>IB Portfolio</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+  <title>Financial Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💹</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', monospace; background: #1e1e1e; color: #d4d4d4; padding: 2rem; }
-    h1 { color: #4ec9b0; margin-bottom: 1rem; font-size: 1.6rem; }
-    h2 { color: #9cdcfe; margin: 1.5rem 0 0.5rem; font-size: 1.1rem; }
-
-    .badges { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center; }
-    .badge {
-      background: #2d2d2d; border: 1px solid #3e3e3e;
-      padding: 4px 12px; border-radius: 20px; font-size: 0.8rem;
+    :root {
+      --bg:#0d0f14;--surface:#13161d;--surface2:#1a1e28;--border:#232736;
+      --accent:#00e5a0;--accent2:#3d8bff;--accent3:#ff6b6b;--accent4:#ffd166;
+      --text:#e2e8f0;--muted:#5a6380;
+      --font-mono:'DM Mono',monospace;--font-sans:'DM Sans',sans-serif;   
     }
-    .badge.green { border-color: #4ec9b0; color: #4ec9b0; }
-    .badge.blue  { border-color: #9cdcfe; color: #9cdcfe; }
-    .badge.gray  { border-color: #888; color: #888; }
-
-    .account-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1rem; margin-bottom: 1.5rem;
-    }
-    .account-card {
-      background: #252526; border: 1px solid #3e3e3e;
-      border-radius: 8px; padding: 1rem;
-    }
-    .account-card .label { font-size: 0.75rem; color: #888; margin-bottom: 4px; }
-    .account-card .value { font-size: 1.2rem; font-weight: bold; color: #d4d4d4; }
-
-    /* Tabs */
-    .tabs { display: flex; gap: 0; margin-bottom: 0; border-bottom: 1px solid #3e3e3e; }
-    .tab {
-      padding: 8px 20px; cursor: pointer; font-size: 0.9rem;
-      color: #888; border: 1px solid transparent;
-      border-bottom: none; border-radius: 6px 6px 0 0;
-      background: transparent;
-    }
-    .tab:hover { color: #d4d4d4; }
-    .tab.active { background: #252526; border-color: #3e3e3e; color: #4ec9b0; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-
-    table { width: 100%; border-collapse: collapse; background: #252526; border-radius: 0 8px 8px 8px; overflow: hidden; }
-    th { background: #2d2d2d; color: #9cdcfe; padding: 10px 12px; text-align: left; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    td { padding: 10px 12px; border-bottom: 1px solid #2d2d2d; font-size: 0.9rem; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #2a2a2a; }
-
-    .pos { color: #4ec9b0; }
-    .neg { color: #f48771; }
-    .buy  { color: #4ec9b0; font-weight: bold; }
-    .sell { color: #f48771; font-weight: bold; }
-
-    .refresh-btn {
-      background: #2d2d2d; color: #4ec9b0;
-      border: 1px solid #4ec9b0; padding: 6px 16px;
-      border-radius: 4px; cursor: pointer; font-size: 0.85rem;
-      margin-left: auto;
-    }
-    .refresh-btn:hover { background: #3e3e3e; }
-
-    .last-updated { font-size: 0.75rem; color: #555; margin-top: 1.5rem; }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-sans);min-height:100vh;font-size:14px;}
+    .header{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 2rem;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100;}
+    .header-left{display:flex;align-items:center;gap:1rem;}
+    .logo{font-family:var(--font-mono);font-size:1.1rem;color:var(--accent);letter-spacing:-0.02em;}
+    .logo span{color:var(--muted);}
+    .header-badges{display:flex;gap:0.5rem;}
+    .badge{font-family:var(--font-mono);font-size:0.7rem;padding:3px 10px;border-radius:20px;border:1px solid var(--border);color:var(--muted);}
+    .badge.live{border-color:var(--accent);color:var(--accent);}
+    .badge.readonly{border-color:var(--accent2);color:var(--accent2);}
+    .last-updated{font-family:var(--font-mono);font-size:0.7rem;color:var(--muted);}
+    .networth-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;gap:2.5rem;align-items:center;overflow-x:auto;}
+    .nw-item{flex-shrink:0;}
+    .nw-label{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;}
+    .nw-value{font-family:var(--font-mono);font-size:1.25rem;font-weight:500;}
+    .nw-value.accent{color:var(--accent);}.nw-value.accent2{color:var(--accent2);}.nw-value.pos{color:var(--accent);}.nw-value.neg{color:var(--accent3);}
+    .nw-divider{width:1px;height:36px;background:var(--border);flex-shrink:0;}
+    .nav{display:flex;padding:0 2rem;border-bottom:1px solid var(--border);background:var(--bg);}
+    .nav-tab{font-family:var(--font-mono);font-size:0.8rem;padding:0.9rem 1.5rem;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:color 0.2s,border-color 0.2s;letter-spacing:0.04em;text-transform:uppercase;}
+    .nav-tab:hover{color:var(--text);}.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+    .content{padding:1.5rem 2rem 3rem;max-width:1400px;}
+    .tab-panel{display:none;}.tab-panel.active{display:block;}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
+    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.25rem;}
+    .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem;}
+    .card-title{font-family:var(--font-mono);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:1rem;}
+    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.1rem 1.25rem;}
+    .stat-label{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;}
+    .stat-value{font-family:var(--font-mono);font-size:1.4rem;font-weight:500;}
+    .stat-sub{font-size:0.75rem;color:var(--muted);margin-top:4px;}
+    .stat-value.pos{color:var(--accent);}.stat-value.neg{color:var(--accent3);}
+    .bank-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+    .bank-name{font-size:1rem;font-weight:600;}.bank-type{font-family:var(--font-mono);font-size:0.7rem;color:var(--muted);}
+    .bank-rate{font-family:var(--font-mono);font-size:0.75rem;color:var(--accent4);}
+    .cashflow-bar{display:flex;height:6px;border-radius:3px;overflow:hidden;margin:0.75rem 0;background:var(--surface2);}
+    .cashflow-fill{background:var(--accent);transition:width 0.8s ease;}.cashflow-fill.expense{background:var(--accent3);}
+    .table-wrap{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;}
+    th{font-family:var(--font-mono);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);}
+    td{padding:9px 10px;font-size:0.85rem;border-bottom:1px solid var(--border);}
+    tr:last-child td{border-bottom:none;}tr:hover td{background:var(--surface2);}
+    .symbol-cell{font-family:var(--font-mono);font-weight:500;color:var(--accent2);}
+    .pos{color:var(--accent);}.neg{color:var(--accent3);}
+    .buy{color:var(--accent);font-family:var(--font-mono);font-size:0.75rem;font-weight:500;}
+    .sell{color:var(--accent3);font-family:var(--font-mono);font-size:0.75rem;font-weight:500;}
+    .progress-row{display:flex;align-items:center;gap:0.75rem;margin-bottom:0.6rem;}
+    .progress-label{font-size:0.8rem;width:140px;flex-shrink:0;}
+    .progress-track{flex:1;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+    .progress-fill{height:100%;border-radius:3px;transition:width 0.8s ease;}
+    .progress-val{font-family:var(--font-mono);font-size:0.75rem;color:var(--muted);width:55px;text-align:right;flex-shrink:0;}
+    .metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;}
+    .metric-pill{background:var(--surface2);border-radius:8px;padding:0.6rem 0.75rem;}
+    .metric-pill-label{font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;}
+    .metric-pill-value{font-family:var(--font-mono);font-size:0.95rem;margin-top:2px;}
+    .chart-wrap{position:relative;}.chart-wrap canvas{max-height:240px;}.chart-wrap.tall canvas{max-height:300px;}
+    .tx-list{max-height:280px;overflow-y:auto;}
+    .tx-row{display:flex;align-items:center;justify-content:space-between;padding:0.55rem 0;border-bottom:1px solid var(--border);}
+    .tx-row:last-child{border-bottom:none;}
+    .tx-desc{font-size:0.85rem;}.tx-date{font-family:var(--font-mono);font-size:0.7rem;color:var(--muted);margin-top:2px;}
+    .tx-amount{font-family:var(--font-mono);font-size:0.85rem;}
+    .range-bar{position:relative;height:4px;background:var(--surface2);border-radius:2px;margin:4px 0;}
+    .range-dot{position:absolute;top:-3px;width:10px;height:10px;border-radius:50%;background:var(--accent2);transform:translateX(-50%);}
+    .section-header{font-family:var(--font-mono);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin:1.5rem 0 0.75rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border);}
+    .section-header:first-child{margin-top:0;}
+    ::-webkit-scrollbar{width:4px;height:4px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
   </style>
 </head>
 <body>
-  <h1>📊 IB Portfolio Viewer</h1>
-
-  <div class="badges" id="badges">
-    <span class="badge gray">Loading...</span>
-    <button class="refresh-btn" onclick="load()">🔄 Refresh</button>
+<div class="header">
+  <div class="header-left">
+    <div class="logo">fin<span>/</span>dashboard</div>
+    <div class="header-badges">
+      <span class="badge live">● LIVE</span>
+      <span class="badge readonly">🔒 READ-ONLY</span>
+      <span class="badge">📂 CSV</span>
+    </div>
   </div>
-
-  <h2>Account Summary</h2>
-  <div class="account-grid" id="account">
-    <div class="account-card"><div class="label">Status</div><div class="value">Loading...</div></div>
+  <div class="last-updated" id="last-updated">—</div>
+</div>
+<div class="networth-bar" id="networth-bar">
+  <div class="nw-item"><div class="nw-label">Loading</div><div class="nw-value">—</div></div>
+</div>
+<div class="nav">
+  <div class="nav-tab active" onclick="switchTab('banking')">Banking</div>
+  <div class="nav-tab" onclick="switchTab('portfolio')">Portfolio</div>
+  <div class="nav-tab" onclick="switchTab('analysis')">Analysis</div>
+</div>
+<div class="content">
+  <div class="tab-panel active" id="tab-banking">
+    <div class="grid-2" id="bank-grid"><div class="card"><div class="card-title">Loading banks...</div></div></div>
+    <div class="section-header">Income vs Expenses — Last 3 Months</div>
+    <div class="grid-2">
+      <div class="card"><div class="card-title">Monthly Cash Flow</div><div class="chart-wrap"><canvas id="chart-cashflow"></canvas></div></div>
+      <div class="card"><div class="card-title">Expense Breakdown — Chase</div><div class="chart-wrap"><canvas id="chart-expenses"></canvas></div></div>
+    </div>
   </div>
-
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab('positions')">Positions</div>
-    <div class="tab" onclick="switchTab('transactions')">Transaction History</div>
+  <div class="tab-panel" id="tab-portfolio">
+    <div class="section-header">Brokerage Summary</div>
+    <div class="grid-4" id="portfolio-stats"></div>
+    <div class="section-header">Positions</div>
+    <div class="card"><div class="table-wrap"><table id="positions-table">
+      <thead><tr><th>Symbol</th><th>Type</th><th>Shares</th><th>Price</th><th>Market Value</th><th>Avg Cost</th><th>Unrealized P&L</th><th>Div Yield</th><th>P/E</th><th>Beta</th><th>52W Range</th></tr></thead>
+      <tbody id="positions-body"></tbody>
+    </table></div></div>
+    <div class="section-header">Transaction History</div>
+    <div class="card"><div class="table-wrap"><table>
+      <thead><tr><th>Date</th><th>Symbol</th><th>Action</th><th>Qty</th><th>Price</th><th>Value</th><th>Commission</th><th>Realized P&L</th></tr></thead>
+      <tbody id="tx-body"></tbody>
+    </table></div></div>
   </div>
+  <div class="tab-panel" id="tab-analysis">
+    <div class="grid-3">
+      <div class="card"><div class="card-title">Sector Allocation</div><div class="chart-wrap tall"><canvas id="chart-sector"></canvas></div></div>
+      <div class="card"><div class="card-title">Asset Class Breakdown</div><div class="chart-wrap tall"><canvas id="chart-asset"></canvas></div></div>
+      <div class="card"><div class="card-title">Geographic Exposure</div><div class="chart-wrap tall"><canvas id="chart-geo"></canvas></div></div>
+    </div>
+    <div class="section-header">Portfolio vs Benchmarks</div>
+    <div class="grid-2">
+      <div class="card"><div class="card-title">Return vs Index Funds &amp; Rates</div><div id="benchmark-grid" class="metric-grid"></div></div>
+      <div class="card"><div class="card-title">Sector Allocation by Value</div><div id="sector-bars"></div></div>
+    </div>
+    <div class="section-header">Fundamentals &amp; Risk Metrics</div>
+    <div class="grid-3" id="fundamentals-grid"></div>
+    <div class="section-header">Dividend Income</div>
+    <div class="grid-2">
+      <div class="card"><div class="card-title">Dividend Yield by Position</div><div id="dividend-bars"></div></div>
+      <div class="card"><div class="card-title">Interest Rate Context</div><div id="rate-context"></div></div>
+    </div>
+  </div>
+</div>
 
-  <div id="positions" class="tab-content active">Loading...</div>
-  <div id="transactions" class="tab-content">Loading...</div>
-
-  <p class="last-updated" id="last-updated"></p>
-
-  <script>
-    function fmt(val, prefix = '$') {
-      const n = parseFloat(val);
-      if (isNaN(n)) return '—';
-      return prefix + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-    function pnlClass(val) { return parseFloat(val) >= 0 ? 'pos' : 'neg'; }
-
-    function switchTab(name) {
-      document.querySelectorAll('.tab').forEach((t, i) => {
-        t.classList.toggle('active', ['positions','transactions'][i] === name);
-      });
-      document.querySelectorAll('.tab-content').forEach(c => {
-        c.classList.toggle('active', c.id === name);
-      });
-    }
-
-    async function load() {
-      try {
-        const [statusRes, accountRes, portfolioRes, txRes] = await Promise.all([
-          fetch('/api/status'),
-          fetch('/api/account'),
-          fetch('/api/portfolio'),
-          fetch('/api/transactions'),
-        ]);
-
-        const status    = await statusRes.json();
-        const account   = await accountRes.json();
-        const portfolio = await portfolioRes.json();
-        const txData    = await txRes.json();
-
-        // Badges
-        document.getElementById('badges').innerHTML = `
-          <span class="badge green">🟢 Connected</span>
-          <span class="badge blue">📂 CSV Mode</span>
-          <span class="badge green">🔒 Read-Only</span>
-          <button class="refresh-btn" onclick="load()">🔄 Refresh</button>`;
-
-        // Account cards
-        const cards = [
-          { label: 'Net Liquidation',      key: 'NetLiquidation' },
-          { label: 'Total Cash',           key: 'TotalCashValue' },
-          { label: 'Gross Position Value', key: 'GrossPositionValue' },
-          { label: 'Unrealized P&L',       key: 'UnrealizedPnL', pnl: true },
-          { label: 'Realized P&L',         key: 'RealizedPnL',   pnl: true },
-        ];
-        document.getElementById('account').innerHTML = cards.map(c => {
-          const val = account[c.key];
-          const cls = c.pnl ? pnlClass(val) : '';
-          return `<div class="account-card">
-            <div class="label">${c.label}</div>
-            <div class="value ${cls}">${fmt(val)}</div>
-          </div>`;
-        }).join('');
-
-        // Positions table
-        const positions = portfolio.positions;
-        if (!positions || positions.length === 0) {
-          document.getElementById('positions').innerHTML =
-            '<p style="color:#888; padding:1rem;">No open positions found.</p>';
-        } else {
-          const rows = positions.map(p => `
-            <tr>
-              <td><strong>${p.symbol}</strong></td>
-              <td>${p.sec_type}</td>
-              <td>${p.currency}</td>
-              <td>${p.position}</td>
-              <td>${fmt(p.market_price)}</td>
-              <td>${fmt(p.market_value)}</td>
-              <td>${fmt(p.avg_cost)}</td>
-              <td class="${pnlClass(p.unrealized_pnl)}">${fmt(p.unrealized_pnl)}</td>
-              <td class="${pnlClass(p.realized_pnl)}">${fmt(p.realized_pnl)}</td>
-            </tr>`).join('');
-          document.getElementById('positions').innerHTML = `
-            <table>
-              <thead><tr>
-                <th>Symbol</th><th>Type</th><th>Currency</th><th>Shares</th>
-                <th>Price</th><th>Market Value</th><th>Avg Cost</th>
-                <th>Unrealized P&L</th><th>Realized P&L</th>
-              </tr></thead>
-              <tbody>${rows}</tbody>
-            </table>`;
-        }
-
-        // Transactions table
-        const txs = txData.transactions;
-        if (!txs || txs.length === 0) {
-          document.getElementById('transactions').innerHTML =
-            '<p style="color:#888; padding:1rem;">No transactions found.</p>';
-        } else {
-          const txRows = txs.map(t => `
-            <tr>
-              <td>${t.date}</td>
-              <td><strong>${t.symbol}</strong></td>
-              <td class="${t.action === 'BUY' ? 'buy' : 'sell'}">${t.action}</td>
-              <td>${t.quantity}</td>
-              <td>${fmt(t.price)}</td>
-              <td>${fmt(t.value)}</td>
-              <td>${fmt(t.commission)}</td>
-              <td class="${pnlClass(t.realized_pnl)}">${t.realized_pnl > 0 ? fmt(t.realized_pnl) : '—'}</td>
-            </tr>`).join('');
-          document.getElementById('transactions').innerHTML = `
-            <table>
-              <thead><tr>
-                <th>Date</th><th>Symbol</th><th>Action</th><th>Qty</th>
-                <th>Price</th><th>Value</th><th>Commission</th><th>Realized P&L</th>
-              </tr></thead>
-              <tbody>${txRows}</tbody>
-            </table>`;
-        }
-
-        document.getElementById('last-updated').textContent =
-          `Last updated: ${new Date().toLocaleTimeString()} · Source: CSV`;
-
-      } catch (err) {
-        document.getElementById('badges').innerHTML =
-          `<span class="badge" style="border-color:#f48771;color:#f48771">🔴 Error: ${err.message}</span>`;
-        console.error(err);
-      }
-    }
-
-    load();
-    setInterval(load, 30000);
-  </script>
+<script>
+const CHARTS={};
+const COLORS=['#00e5a0','#3d8bff','#ffd166','#ff6b6b','#c084fc','#fb923c','#34d399','#60a5fa','#f472b6','#a3e635'];
+function fmt(v,pre='$'){const n=parseFloat(v);if(isNaN(n))return'—';return pre+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtPct(v){return parseFloat(v).toFixed(2)+'%';}
+function pnlClass(v){return parseFloat(v)>=0?'pos':'neg';}
+function makeChart(id,type,data,options={}){
+  if(CHARTS[id])CHARTS[id].destroy();
+  const ctx=document.getElementById(id)?.getContext('2d');
+  if(!ctx)return;
+  CHARTS[id]=new Chart(ctx,{type,data,options:{responsive:true,maintainAspectRatio:true,
+    plugins:{legend:{labels:{color:'#5a6380',font:{family:'DM Mono',size:11},boxWidth:12}}},
+    scales:type==='bar'||type==='line'?{x:{ticks:{color:'#5a6380',font:{family:'DM Mono',size:10}},grid:{color:'#232736'}},y:{ticks:{color:'#5a6380',font:{family:'DM Mono',size:10}},grid:{color:'#232736'}}}:{},
+    ...options}});
+}
+function switchTab(name){
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelector(`.nav-tab[onclick*="${name}"]`).classList.add('active');
+  document.getElementById(`tab-${name}`).classList.add('active');
+  setTimeout(()=>Object.values(CHARTS).forEach(c=>c?.update()),50);
+}
+async function load(){
+  try{
+    const [aR,pR,tR,cR,mR]=await Promise.all([fetch('/api/account'),fetch('/api/portfolio'),fetch('/api/transactions'),fetch('/api/bank/chase'),fetch('/api/bank/marcus')]);
+    const account=await aR.json(),portfolio=await pR.json(),txData=await tR.json(),chase=await cR.json(),marcus=await mR.json();
+    const positions=portfolio.positions,txs=txData.transactions;
+    renderNetWorth(account,chase,marcus);
+    renderBanking(chase,marcus);
+    renderPortfolio(positions,txs,account);
+    renderAnalysis(positions);
+    document.getElementById('last-updated').textContent='Updated '+new Date().toLocaleTimeString();
+  }catch(err){
+    console.error(err);
+    document.getElementById('last-updated').textContent='Error: '+err.message;
+  }
+}
+function renderNetWorth(account,chase,marcus){
+  const brokerage=parseFloat(account.NetLiquidation||0),chasebal=parseFloat(chase.account.balance||0),marcusbal=parseFloat(marcus.account.balance||0);
+  const totalNet=brokerage+chasebal+marcusbal,unrealized=parseFloat(account.UnrealizedPnL||0),realized=parseFloat(account.RealizedPnL||0);
+  document.getElementById('networth-bar').innerHTML=`
+    <div class="nw-item"><div class="nw-label">Total Net Worth</div><div class="nw-value accent">${fmt(totalNet)}</div></div>
+    <div class="nw-divider"></div>
+    <div class="nw-item"><div class="nw-label">Brokerage</div><div class="nw-value accent2">${fmt(brokerage)}</div></div>
+    <div class="nw-item"><div class="nw-label">Chase Checking</div><div class="nw-value">${fmt(chasebal)}</div></div>
+    <div class="nw-item"><div class="nw-label">Marcus Savings</div><div class="nw-value">${fmt(marcusbal)}</div></div>
+    <div class="nw-divider"></div>
+    <div class="nw-item"><div class="nw-label">Unrealized P&amp;L</div><div class="nw-value ${pnlClass(unrealized)}">${fmt(unrealized)}</div></div>
+    <div class="nw-item"><div class="nw-label">Realized P&amp;L</div><div class="nw-value ${pnlClass(realized)}">${fmt(realized)}</div></div>
+    <div class="nw-divider"></div>
+    <div class="nw-item"><div class="nw-label">Monthly Income</div><div class="nw-value pos">${fmt(chase.monthly_income)}</div></div>
+    <div class="nw-item"><div class="nw-label">Monthly Expenses</div><div class="nw-value neg">${fmt(chase.monthly_expenses)}</div></div>`;
+}
+function renderBanking(chase,marcus){
+  function bankCard(b){
+    const a=b.account,rate=parseFloat(a.interest_rate||0);
+    const rateLabel=rate>1?`<span class="bank-rate">APY ${rate}%</span>`:`<span class="bank-rate">APR ${rate}%</span>`;
+    const maxV=Math.max(b.total_income,b.total_expenses);
+    const iPct=(b.total_income/maxV*100).toFixed(1),ePct=(b.total_expenses/maxV*100).toFixed(1);
+    const recentTx=[...b.income,...b.expenses].sort((x,y)=>y.date.localeCompare(x.date)).slice(0,8);
+    return`<div class="card">
+      <div class="bank-header">
+        <div><div class="bank-name">${a.bank_name}</div><div class="bank-type">${a.account_type} · ${a.account_number}</div></div>
+        <div style="text-align:right"><div style="font-family:var(--font-mono);font-size:1.4rem;font-weight:500">${fmt(a.balance)}</div>${rateLabel}</div>
+      </div>
+      <div style="display:flex;gap:1rem;margin-bottom:0.75rem">
+        <div class="stat-card" style="flex:1;padding:0.75rem"><div class="stat-label">3-mo Income</div><div class="stat-value pos" style="font-size:1rem">${fmt(b.total_income)}</div><div class="stat-sub">~${fmt(b.monthly_income)}/mo</div></div>
+        <div class="stat-card" style="flex:1;padding:0.75rem"><div class="stat-label">3-mo Expenses</div><div class="stat-value neg" style="font-size:1rem">${fmt(b.total_expenses)}</div><div class="stat-sub">~${fmt(b.monthly_expenses)}/mo</div></div>
+        <div class="stat-card" style="flex:1;padding:0.75rem"><div class="stat-label">Net Cash Flow</div><div class="stat-value ${pnlClass(b.net_cashflow)}" style="font-size:1rem">${fmt(b.net_cashflow)}</div><div class="stat-sub">3-month total</div></div>
+      </div>
+      <div style="margin-bottom:1rem">
+        <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--muted);margin-bottom:3px"><span>Income</span><span>${fmt(b.total_income)}</span></div>
+        <div class="cashflow-bar"><div class="cashflow-fill" style="width:${iPct}%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--muted);margin-bottom:3px"><span>Expenses</span><span>${fmt(b.total_expenses)}</span></div>
+        <div class="cashflow-bar"><div class="cashflow-fill expense" style="width:${ePct}%"></div></div>
+      </div>
+      <div class="card-title">Recent Transactions</div>
+      <div class="tx-list">${recentTx.map(t=>`<div class="tx-row"><div><div class="tx-desc">${t.description}</div><div class="tx-date">${t.date}</div></div><div class="tx-amount ${t.direction==='credit'?'pos':'neg'}">${t.direction==='credit'?'+':'-'}${fmt(t.amount)}</div></div>`).join('')}</div>
+    </div>`;
+  }
+  document.getElementById('bank-grid').innerHTML=bankCard(chase)+bankCard(marcus);
+  const months=['Mar','Apr','May'];
+  const inc=[12390,9700,8500],exp=[8173.38,8347.36,4985.59];
+  makeChart('chart-cashflow','bar',{labels:months,datasets:[
+    {label:'Income',data:inc,backgroundColor:'#00e5a033',borderColor:'#00e5a0',borderWidth:2},
+    {label:'Expenses',data:exp,backgroundColor:'#ff6b6b33',borderColor:'#ff6b6b',borderWidth:2}
+  ]},{plugins:{legend:{position:'bottom'}}});
+  const expCats={};
+  chase.expenses.forEach(e=>{const cat=e.description.split(' - ')[0].split(' ')[0];expCats[cat]=(expCats[cat]||0)+e.amount;});
+  const expKeys=Object.keys(expCats);
+  makeChart('chart-expenses','doughnut',{labels:expKeys,datasets:[{data:expKeys.map(k=>expCats[k].toFixed(2)),backgroundColor:COLORS,borderWidth:0}]},{plugins:{legend:{position:'right'}}});
+}
+function renderPortfolio(positions,txs,account){
+  const totalValue=positions.reduce((s,p)=>s+p.market_value,0);
+  const totalUnreal=positions.reduce((s,p)=>s+p.unrealized_pnl,0);
+  const totalReal=positions.reduce((s,p)=>s+p.realized_pnl,0);
+  const totalCost=positions.reduce((s,p)=>s+(p.avg_cost*p.position),0);
+  const totalReturn=totalCost>0?((totalValue-totalCost)/totalCost*100):0;
+  document.getElementById('portfolio-stats').innerHTML=[
+    {label:'Portfolio Value',value:fmt(totalValue),sub:`${positions.length} positions`},
+    {label:'Total Return',value:fmtPct(totalReturn),sub:`Cost basis ${fmt(totalCost)}`,cls:pnlClass(totalReturn)},
+    {label:'Unrealized P&L',value:fmt(totalUnreal),sub:'Open positions',cls:pnlClass(totalUnreal)},
+    {label:'Realized P&L',value:fmt(totalReal),sub:'Closed trades',cls:pnlClass(totalReal)},
+  ].map(s=>`<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value ${s.cls||''}">${s.value}</div><div class="stat-sub">${s.sub}</div></div>`).join('');
+  document.getElementById('positions-body').innerHTML=positions.map(p=>{
+    const pct52=p.week_52_high>p.week_52_low?((p.market_price-p.week_52_low)/(p.week_52_high-p.week_52_low)*100).toFixed(0):50;
+    return`<tr><td class="symbol-cell">${p.symbol}</td><td><span style="font-size:0.7rem;color:var(--muted)">${p.asset_class}</span></td><td style="font-family:var(--font-mono)">${p.position}</td><td style="font-family:var(--font-mono)">${fmt(p.market_price)}</td><td style="font-family:var(--font-mono)">${fmt(p.market_value)}</td><td style="font-family:var(--font-mono)">${fmt(p.avg_cost)}</td><td style="font-family:var(--font-mono)" class="${pnlClass(p.unrealized_pnl)}">${fmt(p.unrealized_pnl)}</td><td style="font-family:var(--font-mono)">${p.dividend_yield>0?fmtPct(p.dividend_yield):'—'}</td><td style="font-family:var(--font-mono)">${p.pe_ratio>0?p.pe_ratio.toFixed(1)+'x':'—'}</td><td style="font-family:var(--font-mono)" class="${p.beta>1.2?'neg':p.beta<0.8?'pos':''}">${p.beta>0?p.beta.toFixed(2):'—'}</td><td style="min-width:100px"><div style="font-size:0.65rem;color:var(--muted);display:flex;justify-content:space-between"><span>${fmt(p.week_52_low)}</span><span>${fmt(p.week_52_high)}</span></div><div class="range-bar"><div class="range-dot" style="left:${pct52}%"></div></div></td></tr>`;
+  }).join('');
+  document.getElementById('tx-body').innerHTML=txs.map(t=>`<tr><td style="font-family:var(--font-mono);font-size:0.8rem">${t.date}</td><td class="symbol-cell">${t.symbol}</td><td class="${t.action==='BUY'?'buy':'sell'}">${t.action}</td><td style="font-family:var(--font-mono)">${t.quantity}</td><td style="font-family:var(--font-mono)">${fmt(t.price)}</td><td style="font-family:var(--font-mono)">${fmt(t.value)}</td><td style="font-family:var(--font-mono)">${fmt(t.commission)}</td><td style="font-family:var(--font-mono)" class="${pnlClass(t.realized_pnl)}">${t.realized_pnl>0?fmt(t.realized_pnl):'—'}</td></tr>`).join('');
+}
+function renderAnalysis(positions){
+  const totalValue=positions.reduce((s,p)=>s+p.market_value,0);
+  function groupBy(key){const m={};positions.forEach(p=>m[p[key]]=(m[p[key]]||0)+p.market_value);return m;}
+  const sectorMap=groupBy('sector'),assetMap=groupBy('asset_class'),geoMap=groupBy('geography');
+  function doughnut(id,map){
+    const keys=Object.keys(map);
+    makeChart(id,'doughnut',{labels:keys,datasets:[{data:keys.map(k=>map[k].toFixed(2)),backgroundColor:COLORS,borderWidth:0}]},{plugins:{legend:{position:'bottom',labels:{font:{size:10}}}}});
+  }
+  doughnut('chart-sector',sectorMap);doughnut('chart-asset',assetMap);doughnut('chart-geo',geoMap);
+  const spy=positions.find(p=>p.symbol==='SPY'),qqq=positions.find(p=>p.symbol==='QQQ');
+  const cost=positions.reduce((s,p)=>s+(p.avg_cost*p.position),0),val=positions.reduce((s,p)=>s+p.market_value,0);
+  const portRet=((val-cost)/cost*100).toFixed(2);
+  const spyRet=spy?(((spy.market_price-spy.avg_cost)/spy.avg_cost)*100).toFixed(2):0;
+  const qqqRet=qqq?(((qqq.market_price-qqq.avg_cost)/qqq.avg_cost)*100).toFixed(2):0;
+  document.getElementById('benchmark-grid').innerHTML=[
+    {label:'Your Portfolio',value:portRet+'%',cls:pnlClass(portRet)},
+    {label:'SPY (S&P 500)',value:spyRet+'%',cls:pnlClass(spyRet)},
+    {label:'QQQ (Nasdaq)',value:qqqRet+'%',cls:pnlClass(qqqRet)},
+    {label:'Fed Funds Rate',value:'5.25%',cls:''},
+    {label:'Marcus HYSA APY',value:'5.10%',cls:''},
+    {label:'10Y Treasury',value:'4.42%',cls:''},
+  ].map(b=>`<div class="metric-pill"><div class="metric-pill-label">${b.label}</div><div class="metric-pill-value ${b.cls}">${b.value}</div></div>`).join('');
+  const sectorKeys=Object.keys(sectorMap).sort((a,b)=>sectorMap[b]-sectorMap[a]);
+  document.getElementById('sector-bars').innerHTML=sectorKeys.map((k,i)=>{
+    const pct=(sectorMap[k]/totalValue*100).toFixed(1);
+    return`<div class="progress-row"><div class="progress-label">${k}</div><div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:${COLORS[i%COLORS.length]}"></div></div><div class="progress-val">${pct}%</div></div>`;
+  }).join('');
+  const equities=positions.filter(p=>p.pe_ratio>0);
+  const avgPE=equities.reduce((s,p)=>s+p.pe_ratio,0)/equities.length;
+  const betas=positions.filter(p=>p.beta>0);
+  const avgBeta=betas.reduce((s,p)=>s+p.beta,0)/betas.length;
+  const divPos=positions.filter(p=>p.dividend_yield>0);
+  const wDiv=divPos.reduce((s,p)=>s+p.dividend_yield*p.market_value,0)/totalValue;
+  const annDiv=positions.reduce((s,p)=>s+(p.market_value*p.dividend_yield/100),0);
+  const sortedByVal=[...positions].sort((a,b)=>b.market_value-a.market_value);
+  const sortedByBeta=[...positions].sort((a,b)=>b.beta-a.beta);
+  document.getElementById('fundamentals-grid').innerHTML=[
+    {label:'Avg Portfolio P/E',value:avgPE.toFixed(1)+'x',sub:'S&P 500 avg: 24.1x'},
+    {label:'Portfolio Beta',value:avgBeta.toFixed(2),sub:avgBeta>1?'Above market risk':'Below market risk'},
+    {label:'Weighted Div Yield',value:fmtPct(wDiv*100),sub:`~${fmt(annDiv)}/yr estimated`},
+    {label:'Positions Paying Div',value:`${divPos.length} / ${positions.length}`,sub:'Pay dividends'},
+    {label:'Largest Position',value:sortedByVal[0]?.symbol||'—',sub:fmt(sortedByVal[0]?.market_value)},
+    {label:'Most Volatile (Beta)',value:sortedByBeta[0]?.symbol||'—',sub:'β '+sortedByBeta[0]?.beta.toFixed(2)},
+  ].map(s=>`<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value" style="font-size:1.1rem">${s.value}</div><div class="stat-sub">${s.sub}</div></div>`).join('');
+  document.getElementById('dividend-bars').innerHTML=divPos.sort((a,b)=>b.dividend_yield-a.dividend_yield).map((p,i)=>`<div class="progress-row"><div class="progress-label" style="font-family:var(--font-mono);color:var(--accent2)">${p.symbol}</div><div class="progress-track"><div class="progress-fill" style="width:${(p.dividend_yield/4*100).toFixed(0)}%;background:${COLORS[i]}"></div></div><div class="progress-val">${fmtPct(p.dividend_yield)}</div></div>`).join('');
+  const rates=[{label:'Fed Funds Rate',rate:5.25,note:'Upper bound'},{label:'Marcus HYSA APY',rate:5.10,note:'Your savings rate'},{label:'10Y Treasury Yield',rate:4.42,note:'Risk-free benchmark'},{label:'2Y Treasury Yield',rate:4.88,note:'Short-term benchmark'},{label:'TLT Div Yield',rate:3.85,note:'Your bond ETF'},{label:'Portfolio Avg Div',rate:+(wDiv*100).toFixed(2),note:'Weighted yield'}];
+  document.getElementById('rate-context').innerHTML=rates.map((r,i)=>`<div class="progress-row"><div class="progress-label">${r.label}</div><div class="progress-track"><div class="progress-fill" style="width:${(r.rate/6*100).toFixed(0)}%;background:${COLORS[i]}"></div></div><div class="progress-val">${r.rate.toFixed(2)}%</div></div><div style="font-size:0.7rem;color:var(--muted);margin:-0.3rem 0 0.5rem 140px">${r.note}</div>`).join('');
+}
+load();
+setInterval(load,60000);
+</script>
 </body>
 </html>

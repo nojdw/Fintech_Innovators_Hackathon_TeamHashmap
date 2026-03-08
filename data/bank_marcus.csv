@@ -1,0 +1,19 @@
+type,key,value
+account,bank_name,Marcus by Goldman Sachs
+account,account_type,High-Yield Savings
+account,account_number,****9302
+account,balance,48920.55
+account,available_balance,48920.55
+account,pending,0.00
+account,interest_rate,5.10
+account,currency,USD
+income,Interest Payment,205.40,2024-05-01,credit
+income,Interest Payment,198.20,2024-04-01,credit
+income,Interest Payment,191.80,2024-03-01,credit
+income,Transfer from Chase,1000.00,2024-05-01,credit
+income,Transfer from Chase,1000.00,2024-04-01,credit
+income,Transfer from Chase,1000.00,2024-03-01,credit
+income,Transfer from Chase,5000.00,2024-01-15,credit
+expense,Transfer to Brokerage,2000.00,2024-03-10,debit
+expense,Transfer to Brokerage,3000.00,2024-02-15,debit
+expense,Emergency Fund Withdrawal,1500.00,2024-01-28,debit
