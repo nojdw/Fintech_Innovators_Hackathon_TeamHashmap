@@ -4,6 +4,8 @@ Mango Fi is a full-stack financial wellness dashboard that consolidates portfoli
 
 The project is designed as a hackathon proof-of-concept for a "Wealth Wellness Hub" use case.
 
+The project can be accessed here: https://fintech-innovators-hackathon-teamhashmap.onrender.com/
+
 ## What The App Does
 
 Mango Fi provides:
