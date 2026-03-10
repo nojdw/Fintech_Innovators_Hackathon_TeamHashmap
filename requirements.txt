@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+yfinance
+itsdangerous
+starlette
+pydantic
+httpx
+python-multipart
