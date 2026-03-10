@@ -5,6 +5,7 @@ import time
 import hashlib
 import hmac
 import httpx
+from datetime import datetime, timezone
 from collections import deque
 from typing import Optional
 
@@ -13,7 +14,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from starlette.middleware.sessions import SessionMiddleware
 from ib_client import get_portfolio, get_account_summary, get_transactions, get_bank_data
 
@@ -72,6 +73,25 @@ def _profile_path(username: str) -> str:
     safe = "".join(c for c in username if c.isalnum() or c in "-_")
     return os.path.join(PROFILES_DIR, f"{safe}.json")
 
+
+def _health_history_path(username: str) -> str:
+    os.makedirs(PROFILES_DIR, exist_ok=True)
+    safe = "".join(c for c in username if c.isalnum() or c in "-_")
+    return os.path.join(PROFILES_DIR, f"{safe}_health_history.json")
+
+
+def _load_health_history(path: str) -> list[dict]:
+    if not os.path.exists(path):
+        return []
+    try:
+        with open(path) as f:
+            data = json.load(f)
+        if isinstance(data, list):
+            return data
+    except Exception:
+        pass
+    return []
+
 class RetirementProfile(BaseModel):
     current_age: int
     retirement_age: int
@@ -84,6 +104,11 @@ class RetirementProfile(BaseModel):
     monthly_voluntary_contribution: float
     goal_type: str
     target_annual_dividend: Optional[float] = None
+
+
+class HealthSnapshot(BaseModel):
+    score: int
+    breakdown: list[dict] = Field(default_factory=list)
 
 @app.get("/api/profile/retirement")
 def get_retirement_profile(user: str = Depends(require_user)):
@@ -106,6 +131,52 @@ def save_retirement_profile(profile: RetirementProfile, user: str = Depends(requ
     with open(path, "w") as f:
         json.dump(profile.dict(), f, indent=2)
     return {"ok": True}
+
+
+@app.get("/api/health/history")
+def get_health_history(user: str = Depends(require_user)):
+    path = _health_history_path(user)
+    history = _load_health_history(path)
+    history.sort(key=lambda x: x.get("timestamp", x.get("date", "")))
+    return {"history": history[-500:]}
+
+
+@app.post("/api/health/history")
+def save_health_history(body: HealthSnapshot, user: str = Depends(require_user)):
+    path = _health_history_path(user)
+    history = _load_health_history(path)
+    history.sort(key=lambda x: x.get("timestamp", x.get("date", "")))
+
+    now = datetime.now(timezone.utc)
+    date_key = now.strftime("%Y-%m-%d")
+
+    # Prevent duplicate writes from rapid repeated refreshes.
+    if history:
+        last = history[-1]
+        try:
+            last_ts_raw = str(last.get("timestamp", "")).replace("Z", "+00:00")
+            last_ts = datetime.fromisoformat(last_ts_raw)
+            if last_ts.tzinfo is None:
+                last_ts = last_ts.replace(tzinfo=timezone.utc)
+            if (now - last_ts).total_seconds() < 120 and int(last.get("score", -999)) == int(body.score):
+                return {"ok": True, "history": history[-500:]}
+        except Exception:
+            pass
+
+    entry = {
+        "date": date_key,
+        "score": int(body.score),
+        "timestamp": now.isoformat(),
+        "label": now.strftime("%m-%d %H:%M"),
+        "breakdown": body.breakdown,
+    }
+
+    history.append(entry)
+    history = history[-500:]
+    with open(path, "w") as f:
+        json.dump(history, f, indent=2)
+
+    return {"ok": True, "history": history}
 
 # ═══════════════════════════════════════════════════════════════
 # GEMINI AI INSIGHTS
@@ -325,7 +396,7 @@ def cached(key: str, fn):
 def status():
     now  = time.time()
     ages = {k: round(now - _cache[k][1]) for k in _cache}
-    return {"connected": True, "source": "yfinance + csv",
+    return {"connected": True, "source": "yfinance + csv + private assets + digital wallet",
             "readonly": True, "cache_ttl": CACHE_TTL, "cached": ages}
 
 @app.get("/api/portfolio")

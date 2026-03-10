@@ -1,314 +1,644 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Mango Fi</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬡</text></svg>">
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <link rel="stylesheet" href="/static/css/styles.css">
-</head>
-<body>
-
-<!-- HEADER -->
-<div class="header">
-  <div class="header-left">
-    <div>
-      <div class="logo">MANGO FI</div>
-      <div class="logo-sub">TERMINAL ACCESS — PORTFOLIO MANAGEMENT SUBSYSTEM</div>
-    </div>
-    <div class="header-badges">
-      <span class="badge live">◉ ONLINE</span>
-      <span class="badge yf">⚡ YFINANCE</span>
-      <span class="badge ro">🔒 READ-ONLY</span>
-    </div>
-  </div>
-  <div class="header-right">
-    <div id="ai-rate-meter" class="ai-rate-meter"></div>
-    <span class="last-updated" id="last-updated">AWAITING SYNC</span>
-    <button class="btn" id="btn-refresh" onclick="forceRefresh()">↺ RESYNC</button>
-  </div>
-</div>
-<div class="loading-bar" id="loading-bar"></div>
-
-<!-- NET WORTH BAR -->
-<div class="networth-bar" id="networth-bar">
-  <div class="nw-item"><div class="nw-label">INITIALIZING</div><div class="nw-value">—</div></div>
-</div>
-
-<!-- NAV -->
-<div class="nav">
-  <div class="nav-tab active"  onclick="switchTab('banking')">BANKING</div>
-  <div class="nav-tab"         onclick="switchTab('portfolio')">PORTFOLIO</div>
-  <div class="nav-tab"         onclick="switchTab('analysis')">ANALYSIS</div>
-  <div class="nav-tab"         onclick="switchTab('retirement')">RETIREMENT</div>
-</div>
-
-<div class="content">
-
-  <!-- ██ BANKING TAB ██ -->
-  <div class="tab-panel active" id="tab-banking">
-    <!-- Timeline buttons now carry data-months for precise matching -->
-    <div class="timeline-ctrl">
-      <span class="timeline-label">TIMELINE :</span>
-      <button class="tl-btn" data-months="1"  onclick="setTimeline(1)">MONTHLY</button>
-      <button class="tl-btn" data-months="6"  onclick="setTimeline(6)">SEMI-ANNUAL</button>
-      <button class="tl-btn active" data-months="12" onclick="setTimeline(12)">ANNUAL</button>
-    </div>
-
-    <div class="grid-2" id="bank-grid">
-      <div class="card" style="height:200px"></div>
-      <div class="card" style="height:200px"></div>
-    </div>
-
-    <div class="sh" style="margin-top:1.5rem">CASH FLOW
-      <span id="timeline-label-text" style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.15em;color:var(--muted)"></span>
-    </div>
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">INCOME VS EXPENDITURE</div>
-          <span class="card-tag DBS">DBS</span>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Mango Fi</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬡</text></svg>"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=Rajdhani:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/static/css/styles.css" />
+  </head>
+  <body>
+    <!-- HEADER -->
+    <div class="header">
+      <div class="header-left">
+        <div>
+          <div class="logo">MANGO FI</div>
+          <div class="logo-sub">
+            TERMINAL ACCESS — PORTFOLIO MANAGEMENT SUBSYSTEM
+          </div>
         </div>
-        <div class="chart-wrap"><canvas id="chart-cashflow-DBS"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">INCOME VS EXPENDITURE</div>
-          <span class="card-tag SC">SC</span>
+        <div class="header-badges">
+          <span class="badge live">◉ ONLINE</span>
+          <span class="badge yf">⚡ YFINANCE</span>
+          <span class="badge ro">🔒 READ-ONLY</span>
         </div>
-        <div class="chart-wrap"><canvas id="chart-cashflow-SC"></canvas></div>
+      </div>
+      <div class="header-right">
+        <div id="ai-rate-meter" class="ai-rate-meter"></div>
+        <span class="last-updated" id="last-updated">AWAITING SYNC</span>
+        <button class="btn" id="btn-refresh" onclick="forceRefresh()">
+          ↺ RESYNC
+        </button>
+      </div>
+    </div>
+    <div class="loading-bar" id="loading-bar"></div>
+
+    <!-- NET WORTH BAR -->
+    <div class="networth-bar" id="networth-bar">
+      <div class="nw-item">
+        <div class="nw-label">INITIALIZING</div>
+        <div class="nw-value">—</div>
       </div>
     </div>
 
-    <div class="sh" style="margin-top:1.25rem">EXPENDITURE BREAKDOWN</div>
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">SPENDING BY CATEGORY</div>
-          <span class="card-tag DBS">DBS</span>
+    <!-- NAV -->
+    <div class="nav">
+      <div class="nav-tab active" onclick="switchTab('banking')">BANKING</div>
+      <div class="nav-tab" onclick="switchTab('portfolio')">PORTFOLIO</div>
+      <div class="nav-tab" onclick="switchTab('analysis')">ANALYSIS</div>
+      <div class="nav-tab" onclick="switchTab('retirement')">RETIREMENT</div>
+    </div>
+
+    <div class="content">
+      <!-- ██ BANKING TAB ██ -->
+      <div class="tab-panel active" id="tab-banking">
+        <!-- Timeline buttons now carry data-months for precise matching -->
+        <div class="timeline-ctrl">
+          <span class="timeline-label">TIMELINE :</span>
+          <button class="tl-btn" data-months="1" onclick="setTimeline(1)">
+            MONTHLY
+          </button>
+          <button class="tl-btn" data-months="6" onclick="setTimeline(6)">
+            SEMI-ANNUAL
+          </button>
+          <button
+            class="tl-btn active"
+            data-months="12"
+            onclick="setTimeline(12)"
+          >
+            ANNUAL
+          </button>
         </div>
-        <div class="chart-wrap"><canvas id="chart-expenses-DBS"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">SPENDING BY CATEGORY</div>
-          <span class="card-tag SC">SC</span>
+
+        <div class="grid-2" id="bank-grid">
+          <div class="card" style="height: 200px"></div>
+          <div class="card" style="height: 200px"></div>
         </div>
-        <div class="chart-wrap"><canvas id="chart-expenses-SC"></canvas></div>
-      </div>
-    </div>
-  </div>
 
-  <!-- ██ PORTFOLIO TAB ██ -->
-  <div class="tab-panel" id="tab-portfolio">
-    <div class="sh">BROKERAGE SUMMARY</div>
-    <div class="grid-4" id="portfolio-stats"></div>
-
-    <div class="sh">
-      ACTIVE POSITIONS
-      <div style="display:flex;gap:0.75rem;align-items:center">
-        <span id="data-source-note"></span>
-        <input class="search-input" id="pos-search" placeholder="SEARCH SYMBOL / NAME..." oninput="filterPositions()">
-      </div>
-    </div>
-    <div class="card">
-      <div class="table-wrap">
-        <table id="positions-table">
-          <thead><tr>
-            <th class="sortable" onclick="sortPositions('symbol')">SYMBOL / NAME</th>
-            <th class="sortable" onclick="sortPositions('asset_class')">TYPE</th>
-            <th class="sortable" onclick="sortPositions('position')">SHARES</th>
-            <th class="sortable" onclick="sortPositions('market_price')">LIVE PRICE</th>
-            <th class="sortable" onclick="sortPositions('market_value')">MKT VALUE</th>
-            <th class="sortable" onclick="sortPositions('avg_cost')">AVG COST</th>
-            <th class="sortable" onclick="sortPositions('unrealized_pnl')">UNREALIZED P&amp;L</th>
-            <th>SECTOR</th>
-            <th class="sortable" data-tip="Trailing 12-month dividend yield" onclick="sortPositions('dividend_yield')">DIV YIELD</th>
-            <th class="sortable" data-tip="Trailing Price/Earnings ratio" onclick="sortPositions('pe_ratio')">P/E</th>
-            <th class="sortable" data-tip="Beta vs S&P 500 — above 1 = more volatile" onclick="sortPositions('beta')">BETA</th>
-            <th>52W RANGE</th>
-          </tr></thead>
-          <tbody id="positions-body"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="sh">
-      TRANSACTION LOG
-      <input class="search-input" id="tx-search" placeholder="FILTER BY SYMBOL / ACTION..." oninput="filterTx()">
-    </div>
-    <div class="card">
-      <div class="table-wrap">
-        <table>
-          <thead><tr>
-            <th>DATE</th><th>SYMBOL</th><th>ACTION</th><th>QTY</th>
-            <th>PRICE</th><th>VALUE</th><th>COMMISSION</th><th>REALIZED P&amp;L</th>
-          </tr></thead>
-          <tbody id="tx-body"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- ██ ANALYSIS TAB ██ -->
-  <div class="tab-panel" id="tab-analysis">
-    
-    <!-- AI Insights — moved here from Retirement tab -->
-    <div class="ai-request-row">
-      <button class="btn btn-ai" id="btn-ai-request" onclick="requestAiAnalysis()">▶ REQUEST AI ANALYSIS</button>
-      <span class="ai-request-hint">Analyses portfolio composition against retirement projections. Run Retirement Calculator first for full context.</span>
-    </div>
-    <div class="sh" id="ai-insights-sh" style="margin-top:1rem;display:none">
-      AI COMPOSITION ANALYSIS
-      <span style="font-family:var(--font-mono);font-size:0.6rem;color:var(--muted)">TRIGGERED FROM RETIREMENT CALCULATOR</span>
-    </div>
-    <div id="ai-insights-panel"></div>
-    <!-- Health Score -->
-    <div class="sh">PORTFOLIO HEALTH SCORE</div>
-    <div class="card" style="margin-bottom:1.25rem">
-      <div id="health-score-panel">
-        <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--muted)">LOADING...</div>
-      </div>
-    </div>
-
-    <!-- Allocation charts + diversification warnings -->
-    <div class="sh">ALLOCATION BREAKDOWN</div>
-    <div id="diversification-warnings"></div>
-    <div class="grid-3">
-      <div class="card"><div class="card-title" style="margin-bottom:0.75rem">SECTOR ALLOCATION</div><div class="chart-wrap tall"><canvas id="chart-sector"></canvas></div></div>
-      <div class="card"><div class="card-title" style="margin-bottom:0.75rem">ASSET CLASS BREAKDOWN</div><div class="chart-wrap tall"><canvas id="chart-asset"></canvas></div></div>
-      <div class="card"><div class="card-title" style="margin-bottom:0.75rem">GEOGRAPHIC EXPOSURE</div><div class="chart-wrap tall"><canvas id="chart-geo"></canvas></div></div>
-    </div>
-
-    <div class="sh">BENCHMARK COMPARISON</div>
-    <div class="grid-2">
-      <div class="card"><div class="card-title" style="margin-bottom:0.75rem">RETURN VS BENCHMARKS &amp; RATES</div><div id="benchmark-grid" class="metric-grid"></div></div>
-      <div class="card"><div class="card-title" style="margin-bottom:0.75rem">ALLOCATION BY VALUE</div><div id="sector-bars"></div></div>
-    </div>
-
-    <div class="sh">FUNDAMENTALS &amp; RISK ASSESSMENT</div>
-    <div class="grid-3" id="fundamentals-grid"></div>
-
-    <div class="sh">INCOME &amp; RATE ANALYSIS</div>
-    <div class="grid-2">
-      <div class="card"><div class="card-title" style="margin-bottom:0.75rem">DIVIDEND YIELD BY POSITION</div><div id="dividend-bars"></div></div>
-      <div class="card"><div class="card-title" style="margin-bottom:0.75rem">INTEREST RATE CONTEXT</div><div id="rate-context"></div></div>
-    </div>
-
-
-
-    <!-- POC disclaimer — always visible in Analysis tab -->
-    <div class="poc-disclaimer">
-      <div class="poc-disclaimer-title">⚠ PROOF OF CONCEPT — AI ANALYSIS DISCLAIMER</div>
-      <div class="poc-disclaimer-body">
-        This application is a <strong>proof of concept</strong>. AI-generated insights are produced by Google Gemini and will be replaced by a proprietary model in the production implementation.
-        AI observations reflect portfolio <em>composition patterns only</em> and are derived solely from pre-computed, aggregated metrics — no raw transaction data or personal identifiers are transmitted to the model.
-        <strong>Nothing displayed constitutes financial advice, investment recommendations, or a solicitation to buy or sell any security.</strong>
-        Exchange rate conversions use a static rate (USD/SGD <span id="poc-rate-val">1.34</span>) and are indicative only. Always consult a licensed financial adviser before making investment decisions.
-      </div>
-    </div>
-  </div>
-
-  <!-- ██ RETIREMENT TAB ██ -->
-  <div class="tab-panel" id="tab-retirement">
-    <div class="sh">RETIREMENT PLANNER
-      <span style="font-family:var(--font-mono);font-size:0.6rem;color:var(--muted);font-weight:normal">SINGAPORE — CPF &amp; TAX RULES APPLIED</span>
-    </div>
-
-    <div class="grid-2" style="margin-bottom:1.25rem">
-      <div class="card">
-        <div class="card-title" style="margin-bottom:1rem">PERSONAL INPUTS</div>
-        <div class="retirement-form">
-          <div class="form-row">
-            <label class="form-label">CURRENT AGE</label>
-            <input class="form-input" id="r-current-age" type="number" min="18" max="80" placeholder="30">
+        <div class="sh" style="margin-top: 1.5rem">
+          CASH FLOW
+          <span
+            id="timeline-label-text"
+            style="
+              font-family: var(--font-mono);
+              font-size: 0.65rem;
+              letter-spacing: 0.15em;
+              color: var(--muted);
+            "
+          ></span>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">INCOME VS EXPENDITURE</div>
+              <span class="card-tag DBS">DBS</span>
+            </div>
+            <div class="chart-wrap">
+              <canvas id="chart-cashflow-DBS"></canvas>
+            </div>
           </div>
-          <div class="form-row" id="r-retire-row">
-            <label class="form-label">TARGET RETIREMENT AGE</label>
-            <input class="form-input" id="r-retirement-age" type="number" min="40" max="80" placeholder="62">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">INCOME VS EXPENDITURE</div>
+              <span class="card-tag SC">SC</span>
+            </div>
+            <div class="chart-wrap">
+              <canvas id="chart-cashflow-SC"></canvas>
+            </div>
           </div>
-          <div class="form-row">
-            <label class="form-label">MONTHLY EXPENSES IN RETIREMENT (SGD)</label>
-            <input class="form-input" id="r-monthly-exp" type="number" min="0" placeholder="4000">
-          </div>
-          <div class="form-row">
-            <label class="form-label">MONTHLY VOLUNTARY CONTRIBUTION (SGD)</label>
-            <input class="form-input" id="r-monthly-contrib" type="number" min="0" placeholder="500">
-          </div>
-          <div class="form-row">
-            <label class="form-label">EXPECTED PORTFOLIO GROWTH RATE (% P.A.)</label>
-            <input class="form-input" id="r-growth-rate" type="number" step="0.1" min="0" max="20" placeholder="7.0">
-          </div>
-          <div class="form-row">
-            <label class="form-label">EXPECTED INFLATION RATE (% P.A.)</label>
-            <input class="form-input" id="r-inflation-rate" type="number" step="0.1" min="0" max="10" placeholder="2.5">
-          </div>
+        </div>
 
-          <div class="form-row full">
-            <label class="form-label">GOAL TYPE</label>
-            <select class="form-select" id="r-goal-type" onchange="toggleGoalFields()">
-              <option value="retirement_age">RETIRE BY AGE</option>
-              <option value="dividend_income">TARGET DIVIDEND INCOME</option>
-            </select>
+        <div class="sh" style="margin-top: 1.25rem">EXPENDITURE BREAKDOWN</div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">SPENDING BY CATEGORY</div>
+              <span class="card-tag DBS">DBS</span>
+            </div>
+            <div class="chart-wrap">
+              <canvas id="chart-expenses-DBS"></canvas>
+            </div>
           </div>
-          <div class="form-row" id="r-div-row" style="display:none">
-            <label class="form-label">TARGET ANNUAL DIVIDEND INCOME (SGD)</label>
-            <input class="form-input" id="r-target-div" type="number" min="0" placeholder="60000">
-          </div>
-
-          <div class="form-checkbox-row">
-            <input type="checkbox" id="r-include-cpf" checked>
-            <label for="r-include-cpf">INCLUDE CPF IN PROJECTIONS</label>
-          </div>
-
-          <div class="form-actions">
-            <button class="btn" onclick="saveAndRunRetirement()">▶ CALCULATE &amp; SAVE</button>
-            <span id="r-save-status"></span>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">SPENDING BY CATEGORY</div>
+              <span class="card-tag SC">SC</span>
+            </div>
+            <div class="chart-wrap">
+              <canvas id="chart-expenses-SC"></canvas>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-title" style="margin-bottom:1rem">CPF ACCOUNTS (SINGAPORE)</div>
-        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);margin-bottom:1rem;letter-spacing:0.05em;line-height:1.6">
-          OA EARNS 2.5% P.A. · SA EARNS 4.0% P.A.<br>
-          FULL RETIREMENT SUM (FRS): SGD 205,800<br>
-          WITHDRAWAL ABOVE FRS AVAILABLE AT AGE 55<br>
-          CPF LIFE PAYOUTS BEGIN FROM AGE 65<br>
-          INVESTMENT INCOME NOT TAXED IN SINGAPORE
-        </div>
-        <div class="retirement-form">
-          <div class="form-row">
-            <label class="form-label">CPF ORDINARY ACCOUNT BALANCE (SGD)</label>
-            <input class="form-input" id="r-cpf-oa" type="number" min="0" placeholder="50000">
-          </div>
-          <div class="form-row">
-            <label class="form-label">CPF SPECIAL ACCOUNT BALANCE (SGD)</label>
-            <input class="form-input" id="r-cpf-sa" type="number" min="0" placeholder="30000">
+      <!-- ██ PORTFOLIO TAB ██ -->
+      <div class="tab-panel" id="tab-portfolio">
+        <div class="sh">BROKERAGE SUMMARY</div>
+        <div class="grid-4" id="portfolio-stats"></div>
+
+        <div class="sh">
+          ACTIVE POSITIONS
+          <div style="display: flex; gap: 0.75rem; align-items: center">
+            <span id="data-source-note"></span>
+            <input
+              class="search-input"
+              id="pos-search"
+              placeholder="SEARCH SYMBOL / NAME..."
+              oninput="filterPositions()"
+            />
           </div>
         </div>
+        <div class="portfolio-subtabs" id="portfolio-subtabs">
+          <button
+            class="portfolio-subtab active"
+            onclick="switchPortfolioSubtab('equity')"
+          >
+            EQUITY
+          </button>
+          <button
+            class="portfolio-subtab"
+            onclick="switchPortfolioSubtab('crypto')"
+          >
+            CRYPTO
+          </button>
+          <button
+            class="portfolio-subtab"
+            onclick="switchPortfolioSubtab('others')"
+          >
+            OTHERS
+          </button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table id="positions-table">
+              <thead>
+                <tr>
+                  <th class="sortable" onclick="sortPositions('symbol')">
+                    SYMBOL / NAME
+                  </th>
+                  <th class="sortable" onclick="sortPositions('asset_class')">
+                    TYPE
+                  </th>
+                  <th class="sortable" onclick="sortPositions('position')">
+                    SHARES
+                  </th>
+                  <th class="sortable" onclick="sortPositions('market_price')">
+                    LIVE PRICE
+                  </th>
+                  <th class="sortable" onclick="sortPositions('market_value')">
+                    MKT VALUE
+                  </th>
+                  <th class="sortable" onclick="sortPositions('avg_cost')">
+                    AVG COST
+                  </th>
+                  <th
+                    class="sortable"
+                    onclick="sortPositions('unrealized_pnl')"
+                  >
+                    UNREALIZED P&amp;L
+                  </th>
+                  <th>SECTOR</th>
+                  <th
+                    class="sortable"
+                    data-tip="Trailing 12-month dividend yield"
+                    onclick="sortPositions('dividend_yield')"
+                  >
+                    DIV YIELD
+                  </th>
+                  <th
+                    class="sortable"
+                    data-tip="Trailing Price/Earnings ratio"
+                    onclick="sortPositions('pe_ratio')"
+                  >
+                    P/E
+                  </th>
+                  <th
+                    class="sortable"
+                    data-tip="Beta vs S&P 500 — above 1 = more volatile"
+                    onclick="sortPositions('beta')"
+                  >
+                    BETA
+                  </th>
+                  <th>52W RANGE</th>
+                </tr>
+              </thead>
+              <tbody id="positions-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="sh">
+          TRANSACTION LOG
+          <input
+            class="search-input"
+            id="tx-search"
+            placeholder="FILTER BY SYMBOL / ACTION..."
+            oninput="filterTx()"
+          />
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>DATE</th>
+                  <th>SYMBOL</th>
+                  <th>ACTION</th>
+                  <th>QTY</th>
+                  <th>PRICE</th>
+                  <th>VALUE</th>
+                  <th>COMMISSION</th>
+                  <th>REALIZED P&amp;L</th>
+                </tr>
+              </thead>
+              <tbody id="tx-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ██ ANALYSIS TAB ██ -->
+      <div class="tab-panel" id="tab-analysis">
+        <!-- AI Insights — moved here from Retirement tab -->
+        <div class="ai-request-row">
+          <button
+            class="btn btn-ai"
+            id="btn-ai-request"
+            onclick="requestAiAnalysis()"
+          >
+            ▶ REQUEST AI ANALYSIS
+          </button>
+          <span class="ai-request-hint"
+            >Analyses portfolio composition against retirement projections. Run
+            Retirement Calculator first for full context.</span
+          >
+        </div>
+        <div
+          class="sh"
+          id="ai-insights-sh"
+          style="margin-top: 1rem; display: none"
+        >
+          AI COMPOSITION ANALYSIS
+          <span
+            style="
+              font-family: var(--font-mono);
+              font-size: 0.6rem;
+              color: var(--muted);
+            "
+            >TRIGGERED FROM RETIREMENT CALCULATOR</span
+          >
+        </div>
+        <div id="ai-insights-panel"></div>
+        <!-- Health Score -->
+        <div class="sh">PORTFOLIO HEALTH SCORE</div>
+        <div class="card" style="margin-bottom: 1.25rem">
+          <div id="health-score-panel">
+            <div
+              style="
+                font-family: var(--font-mono);
+                font-size: 0.7rem;
+                color: var(--muted);
+              "
+            >
+              LOADING...
+            </div>
+          </div>
+        </div>
+
+        <div class="sh">HEALTH TREND</div>
+        <div class="card" style="margin-bottom: 1.25rem">
+          <div
+            id="health-trend-meta"
+            style="
+              font-family: var(--font-mono);
+              font-size: 0.65rem;
+              color: var(--muted);
+              margin-bottom: 0.75rem;
+              letter-spacing: 0.08em;
+            "
+          >
+            BUILDING HISTORY...
+          </div>
+          <div class="chart-wrap">
+            <canvas id="chart-health-trend"></canvas>
+          </div>
+        </div>
+
+        <!-- Allocation charts + diversification warnings -->
+        <div class="sh">ALLOCATION BREAKDOWN</div>
+        <div id="diversification-warnings"></div>
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-title" style="margin-bottom: 0.75rem">
+              SECTOR ALLOCATION
+            </div>
+            <div class="chart-wrap tall">
+              <canvas id="chart-sector"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title" style="margin-bottom: 0.75rem">
+              ASSET CLASS BREAKDOWN
+            </div>
+            <div class="chart-wrap tall">
+              <canvas id="chart-asset"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title" style="margin-bottom: 0.75rem">
+              GEOGRAPHIC EXPOSURE
+            </div>
+            <div class="chart-wrap tall"><canvas id="chart-geo"></canvas></div>
+          </div>
+        </div>
+
+        <div class="sh">BENCHMARK COMPARISON</div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title" style="margin-bottom: 0.75rem">
+              RETURN VS BENCHMARKS &amp; RATES
+            </div>
+            <div id="benchmark-grid" class="metric-grid"></div>
+          </div>
+          <div class="card">
+            <div class="card-title" style="margin-bottom: 0.75rem">
+              ALLOCATION BY VALUE
+            </div>
+            <div id="sector-bars"></div>
+          </div>
+        </div>
+
+        <div class="sh">FUNDAMENTALS &amp; RISK ASSESSMENT</div>
+        <div class="grid-3" id="fundamentals-grid"></div>
+
+        <div class="sh">INCOME &amp; RATE ANALYSIS</div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title" style="margin-bottom: 0.75rem">
+              DIVIDEND YIELD BY POSITION
+            </div>
+            <div id="dividend-bars"></div>
+          </div>
+          <div class="card">
+            <div class="card-title" style="margin-bottom: 0.75rem">
+              INTEREST RATE CONTEXT
+            </div>
+            <div id="rate-context"></div>
+          </div>
+        </div>
+
+        <!-- POC disclaimer — always visible in Analysis tab -->
+        <div class="poc-disclaimer">
+          <div class="poc-disclaimer-title">
+            ⚠ PROOF OF CONCEPT — AI ANALYSIS DISCLAIMER
+          </div>
+          <div class="poc-disclaimer-body">
+            This application is a <strong>proof of concept</strong>.
+            AI-generated insights are produced by Google Gemini and will be
+            replaced by a proprietary model in the production implementation. AI
+            observations reflect portfolio
+            <em>composition patterns only</em> and are derived solely from
+            pre-computed, aggregated metrics — no raw transaction data or
+            personal identifiers are transmitted to the model.
+            <strong
+              >Nothing displayed constitutes financial advice, investment
+              recommendations, or a solicitation to buy or sell any
+              security.</strong
+            >
+            Exchange rate conversions use a static rate (USD/SGD
+            <span id="poc-rate-val">1.34</span>) and are indicative only. Always
+            consult a licensed financial adviser before making investment
+            decisions.
+          </div>
+        </div>
+      </div>
+
+      <!-- ██ RETIREMENT TAB ██ -->
+      <div class="tab-panel" id="tab-retirement">
+        <div class="sh">
+          RETIREMENT PLANNER
+          <span
+            style="
+              font-family: var(--font-mono);
+              font-size: 0.6rem;
+              color: var(--muted);
+              font-weight: normal;
+            "
+            >SINGAPORE — CPF &amp; TAX RULES APPLIED</span
+          >
+        </div>
+
+        <div class="grid-2" style="margin-bottom: 1.25rem">
+          <div class="card">
+            <div class="card-title" style="margin-bottom: 1rem">
+              PERSONAL INPUTS
+            </div>
+            <div class="retirement-form">
+              <div class="form-row">
+                <label class="form-label">CURRENT AGE</label>
+                <input
+                  class="form-input"
+                  id="r-current-age"
+                  type="number"
+                  min="18"
+                  max="80"
+                  placeholder="30"
+                />
+              </div>
+              <div class="form-row" id="r-retire-row">
+                <label class="form-label">TARGET RETIREMENT AGE</label>
+                <input
+                  class="form-input"
+                  id="r-retirement-age"
+                  type="number"
+                  min="40"
+                  max="80"
+                  placeholder="62"
+                />
+              </div>
+              <div class="form-row">
+                <label class="form-label"
+                  >MONTHLY EXPENSES IN RETIREMENT (SGD)</label
+                >
+                <input
+                  class="form-input"
+                  id="r-monthly-exp"
+                  type="number"
+                  min="0"
+                  placeholder="4000"
+                />
+              </div>
+              <div class="form-row">
+                <label class="form-label"
+                  >MONTHLY VOLUNTARY CONTRIBUTION (SGD)</label
+                >
+                <input
+                  class="form-input"
+                  id="r-monthly-contrib"
+                  type="number"
+                  min="0"
+                  placeholder="500"
+                />
+              </div>
+              <div class="form-row">
+                <label class="form-label"
+                  >EXPECTED PORTFOLIO GROWTH RATE (% P.A.)</label
+                >
+                <input
+                  class="form-input"
+                  id="r-growth-rate"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="20"
+                  placeholder="7.0"
+                />
+              </div>
+              <div class="form-row">
+                <label class="form-label"
+                  >EXPECTED INFLATION RATE (% P.A.)</label
+                >
+                <input
+                  class="form-input"
+                  id="r-inflation-rate"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="10"
+                  placeholder="2.5"
+                />
+              </div>
+
+              <div class="form-row full">
+                <label class="form-label">GOAL TYPE</label>
+                <select
+                  class="form-select"
+                  id="r-goal-type"
+                  onchange="toggleGoalFields()"
+                >
+                  <option value="retirement_age">RETIRE BY AGE</option>
+                  <option value="dividend_income">
+                    TARGET DIVIDEND INCOME
+                  </option>
+                </select>
+              </div>
+              <div class="form-row" id="r-div-row" style="display: none">
+                <label class="form-label"
+                  >TARGET ANNUAL DIVIDEND INCOME (SGD)</label
+                >
+                <input
+                  class="form-input"
+                  id="r-target-div"
+                  type="number"
+                  min="0"
+                  placeholder="60000"
+                />
+              </div>
+
+              <div class="form-checkbox-row">
+                <input type="checkbox" id="r-include-cpf" checked />
+                <label for="r-include-cpf">INCLUDE CPF IN PROJECTIONS</label>
+              </div>
+
+              <div class="form-actions">
+                <button class="btn" onclick="saveAndRunRetirement()">
+                  ▶ CALCULATE &amp; SAVE
+                </button>
+                <span id="r-save-status"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title" style="margin-bottom: 1rem">
+              CPF ACCOUNTS (SINGAPORE)
+            </div>
+            <div
+              style="
+                font-family: var(--font-mono);
+                font-size: 0.65rem;
+                color: var(--muted);
+                margin-bottom: 1rem;
+                letter-spacing: 0.05em;
+                line-height: 1.6;
+              "
+            >
+              OA EARNS 2.5% P.A. · SA EARNS 4.0% P.A.<br />
+              FULL RETIREMENT SUM (FRS): SGD 205,800<br />
+              WITHDRAWAL ABOVE FRS AVAILABLE AT AGE 55<br />
+              CPF LIFE PAYOUTS BEGIN FROM AGE 65<br />
+              INVESTMENT INCOME NOT TAXED IN SINGAPORE
+            </div>
+            <div class="retirement-form">
+              <div class="form-row">
+                <label class="form-label"
+                  >CPF ORDINARY ACCOUNT BALANCE (SGD)</label
+                >
+                <input
+                  class="form-input"
+                  id="r-cpf-oa"
+                  type="number"
+                  min="0"
+                  placeholder="50000"
+                />
+              </div>
+              <div class="form-row">
+                <label class="form-label"
+                  >CPF SPECIAL ACCOUNT BALANCE (SGD)</label
+                >
+                <input
+                  class="form-input"
+                  id="r-cpf-sa"
+                  type="number"
+                  min="0"
+                  placeholder="30000"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results panel — populated by JS -->
+        <div id="retirement-results">
+          <div
+            style="
+              font-family: var(--font-mono);
+              font-size: 0.75rem;
+              color: var(--muted);
+              padding: 2rem;
+              text-align: center;
+              border: 1px solid var(--border2);
+            "
+          >
+            ENTER YOUR DETAILS ABOVE AND CLICK CALCULATE TO SEE YOUR RETIREMENT
+            PROJECTION
+          </div>
+        </div>
+
+        <!-- After Calculate, AI insights appear in Analysis tab -->
+        <div id="r-ai-callout" style="display: none; margin-top: 1rem">
+          <div class="ai-flag" style="border-color: var(--blue2)">
+            <span class="ai-flag-label" style="color: var(--blue2)"
+              >✦ AI ANALYSIS READY</span
+            >
+            <span
+              >AI composition insights have been generated. View them in the
+              <strong>ANALYSIS</strong> tab under "AI Composition
+              Analysis".</span
+            >
+          </div>
+        </div>
       </div>
     </div>
+    <!-- /content -->
 
-    <!-- Results panel — populated by JS -->
-    <div id="retirement-results">
-      <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--muted);padding:2rem;text-align:center;border:1px solid var(--border2)">
-        ENTER YOUR DETAILS ABOVE AND CLICK CALCULATE TO SEE YOUR RETIREMENT PROJECTION
-      </div>
-    </div>
-
-    <!-- After Calculate, AI insights appear in Analysis tab -->
-    <div id="r-ai-callout" style="display:none;margin-top:1rem">
-      <div class="ai-flag" style="border-color:var(--blue2)">
-        <span class="ai-flag-label" style="color:var(--blue2)">✦ AI ANALYSIS READY</span>
-        <span>AI composition insights have been generated. View them in the <strong>ANALYSIS</strong> tab under "AI Composition Analysis".</span>
-      </div>
-    </div>
-  </div>
-
-</div><!-- /content -->
-
-<script src="/static/js/app.js"></script>
-</body>
+    <script src="/static/js/app.js"></script>
+  </body>
 </html>

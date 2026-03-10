@@ -1,0 +1,129 @@
+[
+  {
+    "date": "2026-03-10",
+    "score": 78,
+    "timestamp": "2026-03-10T14:29:32.236185+00:00",
+    "breakdown": [
+      {
+        "label": "DIVERSIFICATION",
+        "score": 76
+      },
+      {
+        "label": "RISK",
+        "score": 91
+      },
+      {
+        "label": "INCOME",
+        "score": 100
+      },
+      {
+        "label": "VALUATION",
+        "score": 66
+      },
+      {
+        "label": "QUALITY",
+        "score": 72
+      },
+      {
+        "label": "LIQUIDITY",
+        "score": 56
+      }
+    ]
+  },
+  {
+    "date": "2026-03-10",
+    "score": 78,
+    "timestamp": "2026-03-10T14:54:28.058963+00:00",
+    "label": "03-10 14:54",
+    "breakdown": [
+      {
+        "label": "DIVERSIFICATION",
+        "score": 76
+      },
+      {
+        "label": "RISK",
+        "score": 91
+      },
+      {
+        "label": "INCOME",
+        "score": 100
+      },
+      {
+        "label": "VALUATION",
+        "score": 65
+      },
+      {
+        "label": "QUALITY",
+        "score": 72
+      },
+      {
+        "label": "LIQUIDITY",
+        "score": 56
+      }
+    ]
+  },
+  {
+    "date": "2026-03-10",
+    "score": 78,
+    "timestamp": "2026-03-10T15:01:05.656106+00:00",
+    "label": "03-10 15:01",
+    "breakdown": [
+      {
+        "label": "DIVERSIFICATION",
+        "score": 76
+      },
+      {
+        "label": "RISK",
+        "score": 91
+      },
+      {
+        "label": "INCOME",
+        "score": 100
+      },
+      {
+        "label": "VALUATION",
+        "score": 65
+      },
+      {
+        "label": "QUALITY",
+        "score": 72
+      },
+      {
+        "label": "LIQUIDITY",
+        "score": 56
+      }
+    ]
+  },
+  {
+    "date": "2026-03-10",
+    "score": 78,
+    "timestamp": "2026-03-10T15:06:05.644951+00:00",
+    "label": "03-10 15:06",
+    "breakdown": [
+      {
+        "label": "DIVERSIFICATION",
+        "score": 76
+      },
+      {
+        "label": "RISK",
+        "score": 91
+      },
+      {
+        "label": "INCOME",
+        "score": 100
+      },
+      {
+        "label": "VALUATION",
+        "score": 65
+      },
+      {
+        "label": "QUALITY",
+        "score": 72
+      },
+      {
+        "label": "LIQUIDITY",
+        "score": 56
+      }
+    ]
+  }
+]

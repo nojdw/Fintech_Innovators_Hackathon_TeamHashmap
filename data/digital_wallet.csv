@@ -1,0 +1,4 @@
+symbol,asset_name,position,avg_cost,market_price,currency,wallet,chain,geography
+BTC,Bitcoin,0.65,42000,87000,USD,Ledger Nano,Bitcoin,Global
+ETH,Ethereum,8.2,1800,4300,USD,MetaMask,Ethereum,Global
+SOL,Solana,120,40,145,USD,Phantom,Solana,Global

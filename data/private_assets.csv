@@ -1,0 +1,4 @@
+symbol,asset_name,asset_class,position,avg_cost,market_price,currency,sector,geography,dividend_yield
+PVT-RE-SG,Singapore Rental Condo,Private Asset,1,275000,320000,USD,Real Estate,Singapore,3.80
+PVT-PE-GF,Growth Venture Fund,Private Asset,1,70000,85000,USD,Private Equity,Global,0
+PVT-AU-VLT,Allocated Gold Vault,Private Asset,1,39000,45000,USD,Commodity,Global,0

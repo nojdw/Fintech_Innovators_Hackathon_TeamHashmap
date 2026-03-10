@@ -3,6 +3,8 @@ import os
 import yfinance as yf
 
 DATA_DIR = os.path.join(os.getcwd(), "data")
+PRIVATE_ASSETS_FILE = "private_assets.csv"
+DIGITAL_WALLET_FILE = "digital_wallet.csv"
 
 GEOGRAPHY_MAP = {
     "United States": "North America",
@@ -24,6 +26,13 @@ ASSET_CLASS_MAP = {
     "GLD": "Commodity",
 }
 
+
+def _to_float(raw: str, default: float = 0.0) -> float:
+    try:
+        return float(raw)
+    except (TypeError, ValueError):
+        return default
+
 def _read_holdings() -> list[dict]:
     path = os.path.join(DATA_DIR, "portfolio.csv")
     holdings = []
@@ -37,6 +46,95 @@ def _read_holdings() -> list[dict]:
                 "realized_pnl": float(row["realized_pnl"]),
             })
     return holdings
+
+
+def _read_private_assets() -> list[dict]:
+    path = os.path.join(DATA_DIR, PRIVATE_ASSETS_FILE)
+    if not os.path.exists(path):
+        return []
+
+    assets = []
+    with open(path, newline="") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            position = _to_float(row.get("position"), 1.0)
+            avg_cost = _to_float(row.get("avg_cost"))
+            market_price = _to_float(row.get("market_price"), avg_cost)
+            market_value = round(position * market_price, 2)
+            unrealized = round(market_value - (position * avg_cost), 2)
+
+            assets.append({
+                "symbol": row.get("symbol", "PRIVATE").strip() or "PRIVATE",
+                "company_name": row.get("asset_name", "Private Holding").strip() or "Private Holding",
+                "sec_type": "PVT",
+                "asset_class": row.get("asset_class", "Private Asset").strip() or "Private Asset",
+                "currency": row.get("currency", "USD").strip() or "USD",
+                "position": position,
+                "market_price": round(market_price, 2),
+                "market_value": market_value,
+                "avg_cost": round(avg_cost, 2),
+                "unrealized_pnl": unrealized,
+                "realized_pnl": 0.0,
+                "sector": row.get("sector", "Alternative").strip() or "Alternative",
+                "geography": row.get("geography", "Global").strip() or "Global",
+                "dividend_yield": round(_to_float(row.get("dividend_yield")), 2),
+                "pe_ratio": 0.0,
+                "beta": 0.0,
+                "week_52_high": round(market_price, 2),
+                "week_52_low": round(market_price, 2),
+                "debt_to_equity": 0.0,
+                "current_ratio": 0.0,
+                "profit_margin": 0.0,
+                "revenue_growth": 0.0,
+                "short_ratio": 0.0,
+                "pb_ratio": 0.0,
+            })
+    return assets
+
+
+def _read_digital_assets() -> list[dict]:
+    path = os.path.join(DATA_DIR, DIGITAL_WALLET_FILE)
+    if not os.path.exists(path):
+        return []
+
+    assets = []
+    with open(path, newline="") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            position = _to_float(row.get("position"))
+            avg_cost = _to_float(row.get("avg_cost"))
+            market_price = _to_float(row.get("market_price"), avg_cost)
+            market_value = round(position * market_price, 2)
+            unrealized = round(market_value - (position * avg_cost), 2)
+            symbol = (row.get("symbol", "CRYPTO") or "CRYPTO").strip().upper()
+
+            assets.append({
+                "symbol": symbol,
+                "company_name": row.get("asset_name", symbol).strip() or symbol,
+                "sec_type": "CRYPTO",
+                "asset_class": "Digital Asset",
+                "currency": row.get("currency", "USD").strip() or "USD",
+                "position": position,
+                "market_price": round(market_price, 2),
+                "market_value": market_value,
+                "avg_cost": round(avg_cost, 2),
+                "unrealized_pnl": unrealized,
+                "realized_pnl": 0.0,
+                "sector": row.get("chain", "Blockchain").strip() or "Blockchain",
+                "geography": row.get("geography", "Global").strip() or "Global",
+                "dividend_yield": 0.0,
+                "pe_ratio": 0.0,
+                "beta": 0.0,
+                "week_52_high": round(market_price, 2),
+                "week_52_low": round(market_price, 2),
+                "debt_to_equity": 0.0,
+                "current_ratio": 0.0,
+                "profit_margin": 0.0,
+                "revenue_growth": 0.0,
+                "short_ratio": 0.0,
+                "pb_ratio": 0.0,
+            })
+    return assets
 
 
 def get_portfolio() -> list[dict]:
@@ -137,6 +235,16 @@ def get_portfolio() -> list[dict]:
             "short_ratio":     short_ratio,
             "pb_ratio":        pb_ratio,
         })
+
+    try:
+        positions.extend(_read_private_assets())
+    except Exception as e:
+        print(f"[private-assets] Warning: could not read {PRIVATE_ASSETS_FILE}: {e}")
+
+    try:
+        positions.extend(_read_digital_assets())
+    except Exception as e:
+        print(f"[digital-wallet] Warning: could not read {DIGITAL_WALLET_FILE}: {e}")
 
     return positions
 
