@@ -4,7 +4,6 @@ import yfinance as yf
 
 DATA_DIR = os.path.join(os.getcwd(), "data")
 
-# Geography mapping — yfinance returns country, we map to region
 GEOGRAPHY_MAP = {
     "United States": "North America",
     "Canada":        "North America",
@@ -18,7 +17,6 @@ GEOGRAPHY_MAP = {
     "India":         "Asia Pacific",
 }
 
-# Asset class overrides for ETFs yfinance misclassifies
 ASSET_CLASS_MAP = {
     "SPY": "ETF",
     "QQQ": "ETF",
@@ -27,7 +25,6 @@ ASSET_CLASS_MAP = {
 }
 
 def _read_holdings() -> list[dict]:
-    """Read positions and avg cost from CSV — the only thing yfinance can't know."""
     path = os.path.join(DATA_DIR, "portfolio.csv")
     holdings = []
     with open(path, newline="") as f:
@@ -43,15 +40,9 @@ def _read_holdings() -> list[dict]:
 
 
 def get_portfolio() -> list[dict]:
-    """
-    Merge CSV holdings with live yfinance market data.
-    Falls back gracefully to CSV avg_cost if yfinance is unavailable.
-    """
     holdings = _read_holdings()
     symbols  = [h["symbol"] for h in holdings]
-
-    # Batch fetch all tickers at once — much faster than one by one
-    tickers = yf.Tickers(" ".join(symbols))
+    tickers  = yf.Tickers(" ".join(symbols))
 
     positions = []
     for holding in holdings:
@@ -89,9 +80,18 @@ def get_portfolio() -> list[dict]:
             week52_low   = info.get("fiftyTwoWeekLow")  or price
             company_name = info.get("longName") or info.get("shortName") or sym
 
+            # ── Extra metrics for health score ──────────────────
+            debt_to_equity   = round(info.get("debtToEquity")   or 0, 2)
+            current_ratio    = round(info.get("currentRatio")   or 0, 2)
+            profit_margin    = round((info.get("profitMargins") or 0) * 100, 2)
+            revenue_growth   = round((info.get("revenueGrowth") or 0) * 100, 2)
+            short_ratio      = round(info.get("shortRatio")     or 0, 2)
+            # Price-to-Book — used for valuation quality
+            pb_ratio         = round(info.get("priceToBook")    or 0, 2)
+
         except Exception as e:
             print(f"[yfinance] Warning: could not fetch {sym}: {e}")
-            price        = cost
+            price          = cost
             market_value   = round(cost * pos, 2)
             unrealized_pnl = 0.0
             sector         = "Unknown"
@@ -103,43 +103,50 @@ def get_portfolio() -> list[dict]:
             week52_high    = cost
             week52_low     = cost
             company_name   = sym
+            debt_to_equity = 0.0
+            current_ratio  = 0.0
+            profit_margin  = 0.0
+            revenue_growth = 0.0
+            short_ratio    = 0.0
+            pb_ratio       = 0.0
 
         positions.append({
-            "symbol":         sym,
-            "company_name":   company_name,
-            "sec_type":       "ETF" if asset_class in ("ETF", "Bond", "Commodity") else "STK",
-            "asset_class":    asset_class,
-            "currency":       "USD",
-            "position":       pos,
-            "market_price":   round(price, 2),
-            "market_value":   market_value,
-            "avg_cost":       cost,
-            "unrealized_pnl": unrealized_pnl,
-            "realized_pnl":   real,
-            "sector":         sector,
-            "geography":      geography,
-            "dividend_yield": div_yield,
-            "pe_ratio":       pe_ratio,
-            "beta":           beta,
-            "week_52_high":   round(week52_high, 2),
-            "week_52_low":    round(week52_low,  2),
+            "symbol":          sym,
+            "company_name":    company_name,
+            "sec_type":        "ETF" if asset_class in ("ETF", "Bond", "Commodity") else "STK",
+            "asset_class":     asset_class,
+            "currency":        "USD",
+            "position":        pos,
+            "market_price":    round(price, 2),
+            "market_value":    market_value,
+            "avg_cost":        cost,
+            "unrealized_pnl":  unrealized_pnl,
+            "realized_pnl":    real,
+            "sector":          sector,
+            "geography":       geography,
+            "dividend_yield":  div_yield,
+            "pe_ratio":        pe_ratio,
+            "beta":            beta,
+            "week_52_high":    round(week52_high, 2),
+            "week_52_low":     round(week52_low,  2),
+            # Health score extras
+            "debt_to_equity":  debt_to_equity,
+            "current_ratio":   current_ratio,
+            "profit_margin":   profit_margin,
+            "revenue_growth":  revenue_growth,
+            "short_ratio":     short_ratio,
+            "pb_ratio":        pb_ratio,
         })
 
     return positions
 
 
 def get_account_summary() -> dict:
-    """
-    Derive account summary live from portfolio positions.
-    Cash balance still read from account.csv if present.
-    """
     positions = get_portfolio()
-
     net_liq    = sum(p["market_value"]   for p in positions)
     unrealized = sum(p["unrealized_pnl"] for p in positions)
     realized   = sum(p["realized_pnl"]   for p in positions)
 
-    # Try to read cash from account.csv, fall back to default
     cash = 38456.25
     try:
         path = os.path.join(DATA_DIR, "account.csv")
@@ -160,7 +167,6 @@ def get_account_summary() -> dict:
 
 
 def get_transactions() -> list[dict]:
-    """Transaction history stays in CSV — yfinance has no personal trade data."""
     path = os.path.join(DATA_DIR, "transactions.csv")
     transactions = []
     with open(path, newline="") as f:
@@ -180,8 +186,23 @@ def get_transactions() -> list[dict]:
     return transactions
 
 
+def _normalise_date(raw: str) -> str:
+    """
+    Convert any common date format to YYYY-MM-DD so JS date logic works.
+    Handles: M/D/YYYY, MM/DD/YYYY, YYYY-MM-DD, D-M-YYYY, etc.
+    Returns the original string unchanged if parsing fails.
+    """
+    from datetime import datetime
+    for fmt in ("%m/%d/%Y", "%d/%m/%Y", "%Y-%m-%d", "%d-%m-%Y", "%m-%d-%Y",
+                "%Y/%m/%d", "%d %b %Y", "%b %d %Y", "%B %d %Y"):
+        try:
+            return datetime.strptime(raw.strip(), fmt).strftime("%Y-%m-%d")
+        except ValueError:
+            continue
+    return raw.strip()
+
+
 def get_bank_data(filename: str) -> dict:
-    """Bank data stays in CSV — no public API equivalent."""
     path = os.path.join(DATA_DIR, filename)
     account  = {}
     income   = []
@@ -197,19 +218,20 @@ def get_bank_data(filename: str) -> dict:
                 income.append({
                     "description": row[1],
                     "amount":      float(row[2]),
-                    "date":        row[3] if len(row) > 3 else "",
+                    "date":        _normalise_date(row[3]) if len(row) > 3 else "",
                     "direction":   "credit",
                 })
             elif row[0] == "expense":
                 expenses.append({
                     "description": row[1],
                     "amount":      float(row[2]),
-                    "date":        row[3] if len(row) > 3 else "",
+                    "date":        _normalise_date(row[3]) if len(row) > 3 else "",
                     "direction":   "debit",
                 })
 
     total_income   = sum(t["amount"] for t in income)
     total_expenses = sum(t["amount"] for t in expenses)
+    months = 12  # CSVs now carry 12 months
 
     return {
         "account":          account,
@@ -217,7 +239,7 @@ def get_bank_data(filename: str) -> dict:
         "expenses":         sorted(expenses, key=lambda x: x["date"], reverse=True),
         "total_income":     round(total_income, 2),
         "total_expenses":   round(total_expenses, 2),
-        "monthly_income":   round(total_income   / 3, 2),
-        "monthly_expenses": round(total_expenses / 3, 2),
+        "monthly_income":   round(total_income   / months, 2),
+        "monthly_expenses": round(total_expenses / months, 2),
         "net_cashflow":     round(total_income - total_expenses, 2),
     }

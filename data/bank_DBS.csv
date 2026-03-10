@@ -1,0 +1,140 @@
+type,key,value,,
+account,bank_name,DBS,,
+account,account_type,Checking,,
+account,account_number,****4821,,
+account,balance,24583.17,,
+account,available_balance,23983.17,,
+account,pending,600,,
+account,interest_rate,0.01,,
+account,currency,USD,,
+income,Salary - Acme Corp,8500,1/1/2024,credit
+income,Salary - Acme Corp,8500,2/1/2024,credit
+income,Salary - Acme Corp,8500,3/1/2024,credit
+income,Salary - Acme Corp,8500,4/1/2024,credit
+income,Salary - Acme Corp,8500,5/1/2024,credit
+income,Salary - Acme Corp,8500,6/1/2024,credit
+income,Salary - Acme Corp,8500,7/1/2024,credit
+income,Salary - Acme Corp,8500,8/1/2024,credit
+income,Salary - Acme Corp,8500,9/1/2024,credit
+income,Salary - Acme Corp,8500,10/1/2024,credit
+income,Salary - Acme Corp,8500,11/1/2024,credit
+income,Salary - Acme Corp,8500,12/1/2024,credit
+income,Freelance Payment,1200,2/18/2024,credit
+income,Freelance Payment,950,5/10/2024,credit
+income,Freelance Payment,1400,8/22/2024,credit
+income,Freelance Payment,1100,11/14/2024,credit
+income,Tax Refund,890,3/15/2024,credit
+income,Bonus,3000,3/31/2024,credit
+income,Bonus,3000,9/30/2024,credit
+expense,Rent,2800,1/1/2024,debit
+expense,Rent,2800,2/1/2024,debit
+expense,Rent,2800,3/1/2024,debit
+expense,Rent,2800,4/1/2024,debit
+expense,Rent,2800,5/1/2024,debit
+expense,Rent,2800,6/1/2024,debit
+expense,Rent,2800,7/1/2024,debit
+expense,Rent,2800,8/1/2024,debit
+expense,Rent,2800,9/1/2024,debit
+expense,Rent,2800,10/1/2024,debit
+expense,Rent,2800,11/1/2024,debit
+expense,Rent,2800,12/1/2024,debit
+expense,Groceries,310.88,1/5/2024,debit
+expense,Groceries,289.12,2/6/2024,debit
+expense,Groceries,320.45,3/5/2024,debit
+expense,Groceries,298.7,4/4/2024,debit
+expense,Groceries,289.12,5/3/2024,debit
+expense,Groceries,315.6,6/5/2024,debit
+expense,Groceries,330.2,7/4/2024,debit
+expense,Groceries,275.9,8/6/2024,debit
+expense,Groceries,305.4,9/5/2024,debit
+expense,Groceries,318.8,10/4/2024,debit
+expense,Groceries,292.3,11/6/2024,debit
+expense,Groceries,410.5,12/5/2024,debit
+expense,Utilities,198.6,1/2/2024,debit
+expense,Utilities,185.2,2/2/2024,debit
+expense,Utilities,172.4,3/2/2024,debit
+expense,Utilities,165.8,4/2/2024,debit
+expense,Utilities,185.2,5/2/2024,debit
+expense,Utilities,195.4,6/2/2024,debit
+expense,Utilities,210.6,7/2/2024,debit
+expense,Utilities,220.8,8/2/2024,debit
+expense,Utilities,195.4,9/2/2024,debit
+expense,Utilities,178.6,10/2/2024,debit
+expense,Utilities,172.4,11/2/2024,debit
+expense,Utilities,188.9,12/2/2024,debit
+expense,Dining,198.9,1/18/2024,debit
+expense,Dining,245.6,2/14/2024,debit
+expense,Dining,312.5,3/18/2024,debit
+expense,Dining,198.9,4/12/2024,debit
+expense,Dining,245.8,5/8/2024,debit
+expense,Dining,289.4,6/15/2024,debit
+expense,Dining,320.1,7/20/2024,debit
+expense,Dining,278.6,8/18/2024,debit
+expense,Dining,256.3,9/14/2024,debit
+expense,Dining,234.7,10/19/2024,debit
+expense,Dining,198.4,11/22/2024,debit
+expense,Dining,450.2,12/24/2024,debit
+expense,Transport,132,1/1/2024,debit
+expense,Transport,132,2/1/2024,debit
+expense,Transport,132,3/1/2024,debit
+expense,Transport,132,4/1/2024,debit
+expense,Transport,132,5/1/2024,debit
+expense,Transport,132,6/1/2024,debit
+expense,Transport,132,7/1/2024,debit
+expense,Transport,132,8/1/2024,debit
+expense,Transport,132,9/1/2024,debit
+expense,Transport,132,10/1/2024,debit
+expense,Transport,132,11/1/2024,debit
+expense,Transport,132,12/1/2024,debit
+expense,Subscriptions,87.94,1/5/2024,debit
+expense,Subscriptions,87.94,2/5/2024,debit
+expense,Subscriptions,87.94,3/5/2024,debit
+expense,Subscriptions,87.94,4/5/2024,debit
+expense,Subscriptions,87.94,5/5/2024,debit
+expense,Subscriptions,87.94,6/5/2024,debit
+expense,Subscriptions,87.94,7/5/2024,debit
+expense,Subscriptions,87.94,8/5/2024,debit
+expense,Subscriptions,87.94,9/5/2024,debit
+expense,Subscriptions,87.94,10/5/2024,debit
+expense,Subscriptions,87.94,11/5/2024,debit
+expense,Subscriptions,87.94,12/5/2024,debit
+expense,Insurance,420,1/1/2024,debit
+expense,Insurance,420,2/1/2024,debit
+expense,Insurance,420,3/1/2024,debit
+expense,Insurance,420,4/1/2024,debit
+expense,Insurance,420,5/1/2024,debit
+expense,Insurance,420,6/1/2024,debit
+expense,Insurance,420,7/1/2024,debit
+expense,Insurance,420,8/1/2024,debit
+expense,Insurance,420,9/1/2024,debit
+expense,Insurance,420,10/1/2024,debit
+expense,Insurance,420,11/1/2024,debit
+expense,Insurance,420,12/1/2024,debit
+expense,Shopping,534.2,1/15/2024,debit
+expense,Shopping,421.8,2/20/2024,debit
+expense,Shopping,621.4,3/14/2024,debit
+expense,Shopping,389.6,4/18/2024,debit
+expense,Shopping,534.2,5/10/2024,debit
+expense,Shopping,298.4,6/22/2024,debit
+expense,Shopping,445.7,7/12/2024,debit
+expense,Shopping,512.3,8/16/2024,debit
+expense,Shopping,378.9,9/19/2024,debit
+expense,Shopping,489.2,10/14/2024,debit
+expense,Shopping,356.8,11/28/2024,debit
+expense,Shopping,820.5,12/20/2024,debit
+expense,Healthcare,180,2/20/2024,debit
+expense,Healthcare,240,5/15/2024,debit
+expense,Healthcare,180,8/10/2024,debit
+expense,Healthcare,320,11/5/2024,debit
+expense,Transfer to Marcus,1000,1/1/2024,debit
+expense,Transfer to Marcus,1000,2/1/2024,debit
+expense,Transfer to Marcus,1000,3/1/2024,debit
+expense,Transfer to Marcus,1000,4/1/2024,debit
+expense,Transfer to Marcus,1000,5/1/2024,debit
+expense,Transfer to Marcus,1000,6/1/2024,debit
+expense,Transfer to Marcus,1000,7/1/2024,debit
+expense,Transfer to Marcus,1000,8/1/2024,debit
+expense,Transfer to Marcus,1000,9/1/2024,debit
+expense,Transfer to Marcus,1000,10/1/2024,debit
+expense,Transfer to Marcus,1000,11/1/2024,debit
+expense,Transfer to Marcus,1000,12/1/2024,debit

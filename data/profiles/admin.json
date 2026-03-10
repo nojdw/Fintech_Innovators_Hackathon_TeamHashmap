@@ -1,0 +1,13 @@
+{
+  "current_age": 30,
+  "retirement_age": 62,
+  "monthly_expenses_retirement": 4000.0,
+  "cpf_oa_balance": 50000.0,
+  "cpf_sa_balance": 30000.0,
+  "expected_growth_rate": 7.0,
+  "expected_inflation_rate": 2.5,
+  "include_cpf": true,
+  "monthly_voluntary_contribution": 500.0,
+  "goal_type": "retirement_age",
+  "target_annual_dividend": null
+}

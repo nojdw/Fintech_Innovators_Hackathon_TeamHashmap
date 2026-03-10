@@ -1,0 +1,38 @@
+type,key,value,,
+account,bank_name,Standard Chartered,,
+account,account_type,High-Yield Savings,,
+account,account_number,****9302,,
+account,balance,48920.55,,
+account,available_balance,48920.55,,
+account,pending,0,,
+account,interest_rate,5.1,,
+account,currency,USD,,
+income,Interest Payment,172.4,1/1/2024,credit
+income,Interest Payment,178.6,2/1/2024,credit
+income,Interest Payment,191.8,3/1/2024,credit
+income,Interest Payment,195.2,4/1/2024,credit
+income,Interest Payment,198.2,5/1/2024,credit
+income,Interest Payment,201.4,6/1/2024,credit
+income,Interest Payment,203.8,7/1/2024,credit
+income,Interest Payment,205.4,8/1/2024,credit
+income,Interest Payment,204.6,9/1/2024,credit
+income,Interest Payment,203.2,10/1/2024,credit
+income,Interest Payment,202.8,11/1/2024,credit
+income,Interest Payment,205.4,12/1/2024,credit
+income,Transfer from Chase,1000,1/1/2024,credit
+income,Transfer from Chase,1000,2/1/2024,credit
+income,Transfer from Chase,1000,3/1/2024,credit
+income,Transfer from Chase,1000,4/1/2024,credit
+income,Transfer from Chase,1000,5/1/2024,credit
+income,Transfer from Chase,1000,6/1/2024,credit
+income,Transfer from Chase,1000,7/1/2024,credit
+income,Transfer from Chase,1000,8/1/2024,credit
+income,Transfer from Chase,1000,9/1/2024,credit
+income,Transfer from Chase,1000,10/1/2024,credit
+income,Transfer from Chase,1000,11/1/2024,credit
+income,Transfer from Chase,1000,12/1/2024,credit
+expense,Transfer to Brokerage,3000,2/15/2024,debit
+expense,Transfer to Brokerage,2000,3/10/2024,debit
+expense,Transfer to Brokerage,2000,6/15/2024,debit
+expense,Transfer to Brokerage,2000,9/20/2024,debit
+expense,Emergency Fund Withdrawal,1500,1/28/2024,debit
