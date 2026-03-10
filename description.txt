@@ -1,0 +1,11 @@
+Mango Fi is a personal finance terminal built for Singapore-based investors, delivering a unified view of total financial health across traditional and digital assets.
+What it does:
+The dashboard consolidates brokerage holdings (via yfinance), mock bank accounts (DBS/Standard Chartered), CPF balances, private assets, and digital/crypto wallets into a single authenticated interface, directly addressing the fragmentation problem of modern multi-asset portfolios.
+Key features:
+1. Portfolio tab: live-priced positions with per-currency display, P&L tracking, and transaction history
+2. Banking tab: 12-month cash flow analysis across multiple accounts with timeline filtering
+3. Analysis tab: a proprietary Financial Health Score (diversification, risk, income, valuation, quality, liquidity), concentration warnings, benchmark comparisons, and AI-powered composition analysis via Gemini
+4. Retirement tab — Singapore-specific CPF-aware retirement projections with SWR corpus modelling, inflation adjustment, and dividend income goal tracking
+
+How it solves the problem:
+Rather than disconnected investments, banking, and retirement planning across separate platforms, Mango Fi aggregates all asset classes into one read-only, secure terminal. The Health Score and AI insights then surface actionable signals, and not just data, giving the investor a genuine wellness assessment of their complete financial picture.
