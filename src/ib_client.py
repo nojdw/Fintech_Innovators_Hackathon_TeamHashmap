@@ -2,7 +2,9 @@ import csv
 import os
 import yfinance as yf
 
-DATA_DIR = os.path.join(os.getcwd(), "data")
+DATA_DIR = os.path.normpath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data")
+)
 PRIVATE_ASSETS_FILE = "private_assets.csv"
 DIGITAL_WALLET_FILE = "digital_wallet.csv"
 

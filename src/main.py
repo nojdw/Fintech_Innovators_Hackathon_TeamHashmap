@@ -9,7 +9,13 @@ from datetime import datetime, timezone
 from collections import deque
 from typing import Optional
 
-sys.path.insert(0, os.path.dirname(__file__))
+# Resolve all paths relative to this file so they work regardless of
+# where uvicorn is launched from (repo root, src/, etc.)
+BASE_DIR   = os.path.dirname(os.path.abspath(__file__))   # → .../src
+STATIC_DIR = os.path.join(BASE_DIR, "..", "static")        # → .../static
+STATIC_DIR = os.path.normpath(STATIC_DIR)
+
+sys.path.insert(0, BASE_DIR)
 
 from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.staticfiles import StaticFiles
@@ -442,8 +448,8 @@ def refresh():
 # ═══════════════════════════════════════════════════════════════
 # STATIC + ROOT
 # ═══════════════════════════════════════════════════════════════
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 @app.get("/")
 def root():
-    return FileResponse("static/index.html")
+    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
